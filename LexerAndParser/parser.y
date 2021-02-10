@@ -25,14 +25,16 @@ MAINWRAPPER
 	;
 
 MAINBODY
-	: '{' S '}'
+	: '{' S '}' { printf("Valid!\n"); YYACCEPT; }
 	;
 
 S
-	: Decl';' S
-	| Assign';' S
+	: Decl ';' S
+	| Assign ';' S
+	| Init ';' S
 	| IF'('Cond')''{'S'}' S
 	| IF'('Cond')''{'S'}' ELSE '{'S'}' S
+	| WHILE '(' Cond ')' '{' S '}' S
 	| /*NULL*/
 	;
 
@@ -51,11 +53,17 @@ ListVar
 	;
 
 Assign
-	: ID '=' E 
+	: ID ASSIGN_OP E 
+	;
+
+Init
+	: Type ID ASSIGN_OP E
 	;
 
 Cond
 	: ID REL_OP ID
+	| ID REL_OP NUM
+	| NUM REL_OP ID
 	;
 
 E

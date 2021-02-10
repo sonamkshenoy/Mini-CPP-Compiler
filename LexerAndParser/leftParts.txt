@@ -1,0 +1,8 @@
+1. Function calls and functions other than main?
+2. Include statements other than in the beginning.
+3. Make ".h" optional in header files.
+4. One line if statements that don't need braces
+5. Include not working again.
+6. Have to add stronger rules in "Cond" (conditions) such as logical comparators, more than one comparison, etc
+7. Switch
+8. Better statements in loop body
