@@ -17,8 +17,14 @@ number {digits}{optionalFractionPart}{optionalExponentPart}
 
 %%
 
+"main" return MAINFUNC;
+"include" return INCLUDE;
+({letter}|"_")({letter}|"_"|{digit})*."h" return HEADERFILE; /* ".h" not mandatory in CPP header files. Remove that */;
+"void" return VOID;
 "int" return INT;
 "float" return FLOAT;
+"if" return IF;
+"else" return ELSE;
 "while" return WHILE;
 "switch" return SWITCH;
 "case" return CASE;
@@ -31,6 +37,7 @@ relationalOperator return REL_OP;
 . return *yytext;
 
 %%
+
 
 int yywrap(void){
 	return 1;
