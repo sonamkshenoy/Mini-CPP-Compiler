@@ -3,8 +3,6 @@
 	#include <stdlib.h>
 	#include <string.h>
 
-	#include <iostream>
-
 	#include "y.tab.h"
 
 	void yyerror(char *);
@@ -35,7 +33,7 @@ whitespace	[ \t\v\f]
 
 
 	/*	Main Function	*/
-"main"	{ return MAINFUNC; }
+"main"	{ return MAIN; }
 
 
 	/*	Headers and Libraries	*/
@@ -61,34 +59,42 @@ whitespace	[ \t\v\f]
 "if"		{ return IF; }
 "else"		{ return ELSE; }
 "while"		{ return WHILE; }
+	/*
 "switch"	{ return SWITCH; }
 "case"		{ return CASE; }
 "default"	{ return DEFAULT; }
+	*/
 
 	/*	Other Statements	*/
+"return"	{ return RETURN; }
+	/*
 "continue"	{ return CONTINUE; }
 "break"		{ return BREAK; }
-"return"	{ return RETURN; }
 "using"		{ return USING; }
 "namespace"	{ return NAMESPACE; }
 "std"		{ return STD; }
 "endl"		{ return ENDL; }
+	*/
 
-"struct"	{ return STRUCT; }
-"class"		{ return CLASS; }
+	/*	"struct"	{ return STRUCT; }	*/
 "public"	{ return PUBLIC; }
 "private"	{ return PRIVATE; }
-"protected"	{ return PROTECTED; }
+	/*	"protected"	{ return PROTECTED; }	*/
 
+	/*
 "printf"	{ return PRINT; }
-"<<"		{ return COUTOP; }
-">>"		{ return CINOP; }
+"<<"		{ return COUT_OP; }
+">>"		{ return CIN_OP; }
 "cout"		{ return COUT; }
 "cin"		{ return CIN; }
+	*/
 
 	/*	Indentifiers and Literals	*/
 {id}		{ return ID; }
 {number}	{ return NUM; }
+	/*
+\".*\"		{ return STRING_LITERAL; }
+	*/
 
 	/*	Assignmet Operators	*/
 "+="	{ return ADD_ASGN; }
@@ -111,27 +117,31 @@ whitespace	[ \t\v\f]
 "!"	{ return NOT_OP; }
 
 	/*	Arithmetic Operators	*/
+	/*
 "++"	{ return INC_OP; }
 "--"	{ return DEC_OP; }
-"+"	{ return '+'; }
-"-"	{ return '-'; }	
-"*"	{ return '*'; }
-"/"	{ return '/'; }
-"%"	{ return '%'; }
+	*/
+"+"	{ return ADD_OP; }
+"-"	{ return SUB_OP; }	
+"*"	{ return MUL_OP; }
+"/"	{ return DIV_OP; }
+"%"	{ return MOD_OP; }
 
 
 	/*	Synatx	*/
-"="		{ return ASGN_OP; }
-("["|"<:")	{ return '['; }
-("]"|":>")	{ return ']'; }
+"="		{ return ASGN_EQ_OP; }
+("["|"<:")	{ return OSB; }
+("]"|":>")	{ return CSB; }
 "."		{ return DOT; }
-";"		{ return ';'; }
-","		{ return ','; }
-":"		{ return ':'; }
-"{"		{ scope++; return '{'; }
-"}"		{ return '}'; }
-"("		{ return ')'; }
-")"		{ return ')'; }
+";"		{ return SEMI_COLON; }
+","		{ return COMMA; }
+":"		{ return COLON; }
+"{"		{ scope++; return OFB; }
+"}"		{ return CFB; }
+"("		{ return OCB; }
+")"		{ return CCB; }
+
+{whitespace}	{	}
 
 . {return *yytext;}
 
