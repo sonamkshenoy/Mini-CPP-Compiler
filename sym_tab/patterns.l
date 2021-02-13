@@ -6,28 +6,23 @@
 	#include "y.tab.h"
 
 	void yyerror(char *);
-
-	int line=1;
-	extern int scope;
 %}
-digit		[0-9]
-letter		[a-zA-Z_]
-alphanum	[a-zA-Z_0-9]
-id		{letter}({letter}{digit})*
-digits		{digit}+
-optionalFractionPart	(\.{digits})?
-optionalExponentPart	([Ee][+-]?{digits})?
-number		{digits}{optionalFractionPart}{optionalExponentPart}
-whitespace	[ \t\v\f]
+
+INTNUM [0-9]+
+FLOATNUM [0-9]+\.[0-9]+
+ID [A-Za-z][A-Za-z0-9_]*     
+SPACE [ \t\r\n]
 
 
 %%
 
 
 	/*	Lines	*/
-[\n]				{ line++; }
-"//".*["\n"*]			{ line++; };
-"/*"(.|"\n")*"*/"(" "|\n)*	{ line++; };
+
+	// [\n]				{ line++; }
+	// "//".*["\n"*]			{ line++; };
+	// "/*"(.|"\n")*"*/"(" "|\n)*	{ line++; };
+
 
 	/*	Comments	*/
 
@@ -37,6 +32,7 @@ whitespace	[ \t\v\f]
 
 
 	/*	Headers and Libraries	*/
+	/*
 "#"				{ return HASH; }
 "include"			{ return INCLUDE; }
 "stdlib.h"			{ return STDLIB; }
@@ -45,6 +41,7 @@ whitespace	[ \t\v\f]
 "string.h"			{ return STRING_H; }
 "time.h"			{ return TIME_H; }
 \"{alphanum}+(".h"|".c")\"	{ return HEADERFILE; }
+	*/
 
 	/*	Data Types	*/
 "void"		{ return VOID; }
@@ -89,19 +86,22 @@ whitespace	[ \t\v\f]
 "cin"		{ return CIN; }
 	*/
 
-	/*	Indentifiers and Literals	*/
+	/*	Indentifiers and Literals	
 {id}		{ return ID; }
-{number}	{ return NUM; }
+{intnum}	{ return INTNUM; }
+{floatnum}	{ return FLOATNUM; } */
 	/*
 \".*\"		{ return STRING_LITERAL; }
 	*/
 
 	/*	Assignmet Operators	*/
+	/*
 "+="	{ return ADD_ASGN; }
 "-="	{ return SUB_ASGN; }
 "*="	{ return MUL_ASGN; }
 "/="	{ return DIV_ASGN; }
 "%="	{ return MOD_ASGN; }
+	*/
 
 	/*	Relational Operators	*/
 "<="	{ return LE_OP; }
@@ -112,9 +112,11 @@ whitespace	[ \t\v\f]
 ">"	{ return GT_OP;	}
 
 	/*	Logical Operators	*/
+	/*
 "&&"	{ return AND_OP; }
 "||"	{ return OR_OP; }	
 "!"	{ return NOT_OP; }
+	*/
 
 	/*	Arithmetic Operators	*/
 	/*
@@ -130,20 +132,31 @@ whitespace	[ \t\v\f]
 
 	/*	Synatx	*/
 "="		{ return ASGN_EQ_OP; }
-("["|"<:")	{ return OSB; }
-("]"|":>")	{ return CSB; }
-"."		{ return DOT; }
-";"		{ return SEMI_COLON; }
-","		{ return COMMA; }
-":"		{ return COLON; }
-"{"		{ scope++; return OFB; }
-"}"		{ return CFB; }
-"("		{ return OCB; }
-")"		{ return CCB; }
+("["|"<:")	{ return '['; }
+("]"|":>")	{ return ']'; }
+"."		{ return '.'; }
+";"		{ return ';'; }
+","		{ return ','; }
+":"		{ return ':'; }
+"{"		{ return '{'; }
+"}"		{ return '}'; }
+"("		{ return '('; }
+")"		{ return ')'; }
 
-{whitespace}	{	}
+{INTNUM} {
+    return INTNUM;
+}
 
-. {return *yytext;}
+{FLOATNUM} {
+    return FLOATNUM;
+}
+
+{ID} {
+    return ID;
+}
+
+{SPACE} {/*do nothing here*/}
+
 
 
 %%
