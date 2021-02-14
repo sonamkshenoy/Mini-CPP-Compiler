@@ -1,33 +1,38 @@
 %{
+
 #include <stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#if YYBISON
-union YYSTYPE;
+
 int yylex();
 void yyerror();
-#endif
 
 %}
 
-%token IDENTIFIER CONSTANT STRING_LITERAL 
-%token PTR_OP INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
-%token AND_OP OR_OP 
-//%token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-//%token XOR_ASSIGN OR_ASSIGN 
-%token CHAR INT FLOAT DOUBLE VOID CLASS
-%token ELLIPSIS
-%token CASE DEFAULT IF ELSE SWITCH WHILE FOR BREAK RETURN 
-//%token CONTINUE
-%nonassoc IFX
-%nonassoc ELSE
+
+%token T_IDENTIFIER T_CONSTANT T_STRING_LITERAL 
+%token T_PTR_OP T_INC_OP T_DEC_OP T_LE_OP T_GE_OP T_EQ_OP T_NE_OP
+%token T_AND_OP T_OR_OP 
+//%token T_ADD_ASSGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSGIN
+%token T_CHAR T_INT T_FLOAT T_DOUBLE T_VOID
+%token T_CLASS T_PUBLIC T_PRIVATE
+%token T_ELLIPSIS
+%token T_CASE T_DEFAULT T_IF T_ELSE T_SWITCH T_WHILE T_FOR T_BREAK T_CONTINUE T_RETURN 
+
+
+%nonassoc T_IFX
+%nonassoc T_ELSE
+
+
 %start translation_unit
 
+
 %%
+
 primary_expression
-	: IDENTIFIER
-	| CONSTANT
-	| STRING_LITERAL
+	: T_IDENTIFIER
+	| T_CONSTANT
+	| T_STRING_LITERAL
 	| '(' expression ')'
 	;
 
@@ -36,9 +41,9 @@ postfix_expression
 	| postfix_expression '[' expression ']'
 	| postfix_expression '(' ')'
 	| postfix_expression '(' argument_expression_list ')'
-	| postfix_expression '.' IDENTIFIER
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
+	| postfix_expression '.' T_IDENTIFIER
+	| postfix_expression T_INC_OP
+	| postfix_expression T_DEC_OP
 	;
 
 argument_expression_list
@@ -48,8 +53,8 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression 
-	| DEC_OP unary_expression 
+	| T_INC_OP unary_expression 
+	| T_DEC_OP unary_expression 
 	| unary_operator unary_expression
 	;
 
@@ -77,22 +82,20 @@ additive_expression
 
 shift_expression
 	: additive_expression
-//	| shift_expression LEFT_OP additive_expression
-//	| shift_expression RIGHT_OP additive_expression
 	;
 
 relational_expression
 	: shift_expression
 	| relational_expression '<' shift_expression
 	| relational_expression '>' shift_expression
-	| relational_expression LE_OP shift_expression
-	| relational_expression GE_OP shift_expression
+	| relational_expression T_LE_OP shift_expression
+	| relational_expression T_GE_OP shift_expression
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NE_OP relational_expression
+	| equality_expression T_EQ_OP relational_expression
+	| equality_expression T_NE_OP relational_expression
 	;
 
 and_expression
@@ -112,12 +115,12 @@ inclusive_or_expression
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
+	| logical_and_expression T_AND_OP inclusive_or_expression
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
+	| logical_or_expression T_OR_OP logical_and_expression
 	;
 
 conditional_expression
@@ -132,16 +135,11 @@ assignment_expression
 
 assignment_operator
 	: '='
-//	| MUL_ASSIGN
-//	| DIV_ASSIGN
-//	| MOD_ASSIGN
-//	| ADD_ASSIGN
-//	| SUB_ASSIGN
-//	| LEFT_ASSIGN
-//	| RIGHT_ASSIGN
-//	| AND_ASSIGN
-//	| XOR_ASSIGN
-//	| OR_ASSIGN
+//	| T_MUL_ASSIGN
+//	| T_DIV_ASSIGN
+//	| T_MOD_ASSIGN
+//	| T_ADD_ASSIGN
+//	| T_SUB_ASSIGN
 	;
 
 expression
@@ -173,23 +171,19 @@ init_declarator
 	| declarator '=' initializer
 	;
 type_specifier
-	: VOID
-	| CHAR
-//	| SHORT
-	| INT
-//	| LONG
-	| FLOAT
-	| DOUBLE
-//	| SIGNED
-//	| UNSIGNED
+	: T_VOID
+	| T_CHAR
+	| T_INT
+	| T_FLOAT
+	| T_DOUBLE
 	;
-
 
 declarator
 	: direct_declarator
 	;
+
 direct_declarator
-	: IDENTIFIER
+	: T_IDENTIFIER
 	| '(' declarator ')'
 	| direct_declarator '[' constant_expression ']'
 	| direct_declarator '[' ']'
@@ -199,21 +193,23 @@ direct_declarator
 	;
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS
+	| parameter_list ',' T_ELLIPSIS
 	;
+
 parameter_list
 	: parameter_declaration
 	| parameter_list ',' parameter_declaration
 	;
+
 parameter_declaration
 	: declaration_specifiers declarator
 	| declaration_specifiers
 	;
-identifier_list
-	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER
-	;
 
+identifier_list
+	: T_IDENTIFIER
+	| identifier_list ',' T_IDENTIFIER
+	;
 
 initializer
 	: assignment_expression
@@ -230,6 +226,8 @@ statement
 	| expression_statement
 	| selection_statement
 	| iteration_statement
+	| T_BREAK ';'
+	| T_CONTINUE ';'
 	;
 
 compound_statement
@@ -239,8 +237,7 @@ compound_statement
 	| '{' declaration_list statement_list '}'
 	| '{' statement_list declaration_list  '}'
 	| '{' statement_list declaration_list statement_list  '}'
-| '{' declaration_list statement_list declaration_list '}'
-	
+	| '{' declaration_list statement_list declaration_list '}'
 	;
 
 declaration_list
@@ -259,20 +256,35 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement %prec IFX 
-	| IF '(' expression ')' statement ELSE statement
+	: T_IF '(' expression ')' statement %prec T_IFX 
+	| T_IF '(' expression ')' statement T_ELSE statement
+	| switch_block
+	;
+
+switch_block
+	: T_SWITCH '(' expression ')' '{' case_list T_DEFAULT ':' statement '}'
+	| T_SWITCH '(' expression ')' '{' case_list '}'
+	;
+
+case_list
+	: case_list case_statement
+	| case_statement
+	;
+
+case_statement
+	: T_CASE T_CONSTANT ':' statement
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| FOR '(' expression_statement expression_statement ')' statement 
-	| FOR '(' expression_statement expression_statement expression ')' statement 
+	: T_WHILE '(' expression ')' statement
+	| T_FOR '(' expression_statement expression_statement ')' statement 
+	| T_FOR '(' expression_statement expression_statement expression ')' statement 
 	;
 
 translation_unit
 	: external_declaration
 	| translation_unit external_declaration
-	| CLASS external_declaration
+	| T_CLASS external_declaration
 	;
 
 external_declaration
@@ -288,10 +300,12 @@ function_definition
 	;
 
 %%
-extern int column;
-void yyerror(){
+
+void yyerror()
+{
 	printf("Parsing Unsuccessful!!\n");
 }
+
 int main()
 {
 	yyparse();
