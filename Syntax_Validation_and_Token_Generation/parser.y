@@ -221,6 +221,20 @@ initializer_list
 	| initializer
 	;
 
+all_statement
+	: single_statement
+	| compound_statement
+	;
+
+single_statement
+	: declaration
+	| expression_statement
+	| selection_statement
+	| iteration_statement
+	| T_BREAK ';'
+	| T_CONTINUE ';'
+	;
+
 statement
 	: compound_statement
 	| expression_statement
@@ -256,29 +270,30 @@ expression_statement
 	;
 
 selection_statement
-	: T_IF '(' expression ')' statement %prec T_IFX 
-	| T_IF '(' expression ')' statement T_ELSE statement
+	: T_IF '(' expression ')' all_statement %prec T_IFX  
+	| T_IF '(' expression ')' all_statement T_ELSE all_statement
 	| switch_block 
 	;
 
 switch_block
-	: T_SWITCH '(' T_IDENTIFIER ')' '{' case_list T_DEFAULT ':' statement_list '}'
+	: T_SWITCH '(' T_IDENTIFIER ')' '{' case_list T_DEFAULT ':' case_statement '}'
 	| T_SWITCH '(' T_IDENTIFIER ')' '{' case_list '}'
 	;
 
 case_list
-	: case_list case_statement
-	| case_statement
+	: case_list T_CASE T_CONSTANT ':' case_statement
+	| T_CASE T_CONSTANT ':' case_statement
 	;
 
 case_statement
-	: T_CASE T_CONSTANT ':' statement_list
+	: single_statement case_statement
+	| single_statement
 	;
 
 iteration_statement
-	: T_WHILE '(' expression ')' statement
-	| T_FOR '(' expression_statement expression_statement ')' statement 
-	| T_FOR '(' expression_statement expression_statement expression ')' statement 
+	: T_WHILE '(' expression ')' all_statement
+	| T_FOR '(' expression_statement expression_statement ')' all_statement 
+	| T_FOR '(' expression_statement expression_statement expression ')' all_statement 
 	;
 
 translation_unit
