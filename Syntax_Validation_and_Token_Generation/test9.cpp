@@ -24,4 +24,14 @@ int fun(){
 			int l; 
 		}
 	}
+	switch(a)
+	{
+	case 1:  b = c + d;
+	case 2: c = d + e;
+	case 3: switch(b):
+			{
+				case 'a': b = c*d;
+			}
+	default: break;
+	}
 }

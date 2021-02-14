@@ -125,13 +125,13 @@ L?\"(\\.|[^\\"])*\"	{ print_token(); return(T_STRING_LITERAL); }
 ("}"|"%>")	{ printf("\t}\n"); return ('}'); }
 "("		{ print_token(); return ('('); }
 ")"		{ print_token(); return (')'); }
-	/*
+
 "&"		{ print_token(); return('&'); }
 "~"		{ print_token(); return('~'); }
 "^"		{ print_token(); return('^'); }
 "|"		{ print_token(); return('|'); }
 "?"		{ print_token(); return('?'); }
-	*/
+
 
 {ID} 		{ print_token(); return(T_IDENTIFIER);}
 [\n]* 		{ printf("\n");}

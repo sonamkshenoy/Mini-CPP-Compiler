@@ -47,8 +47,8 @@ postfix_expression
 	;
 
 argument_expression_list
-	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	: argument_expression_list ',' assignment_expression
+	| assignment_expression
 	;
 
 unary_expression
@@ -129,8 +129,8 @@ conditional_expression
 	;
 
 assignment_expression
-	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	: unary_expression assignment_operator assignment_expression 
+	| conditional_expression
 	;
 
 assignment_operator
@@ -143,8 +143,8 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression
-	| expression ',' assignment_expression
+	: expression ',' assignment_expression
+	| assignment_expression
 	;
 
 constant_expression
@@ -152,23 +152,23 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers ';'
 	;
 
 declaration_specifiers
-	: type_specifier
-	| type_specifier declaration_specifiers
+	: type_specifier declaration_specifiers 
+	| type_specifier
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator_list ',' init_declarator
+	| init_declarator
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer
+	: declarator '=' initializer
+	| declarator
 	;
 type_specifier
 	: T_VOID
@@ -207,8 +207,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: T_IDENTIFIER
-	| identifier_list ',' T_IDENTIFIER
+	: identifier_list ',' T_IDENTIFIER
+	| T_IDENTIFIER
 	;
 
 initializer
@@ -217,8 +217,8 @@ initializer
 	;
 
 initializer_list
-	: initializer
-	| initializer_list ',' initializer
+	: initializer_list ',' initializer
+	| initializer
 	;
 
 statement
@@ -231,23 +231,23 @@ statement
 	;
 
 compound_statement
-	: '{' '}' 
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
-	| '{' statement_list declaration_list  '}'
+	: '{' declaration_list statement_list declaration_list '}'
 	| '{' statement_list declaration_list statement_list  '}'
-	| '{' declaration_list statement_list declaration_list '}'
-	;
+	| '{' statement_list declaration_list  '}'
+	| '{' declaration_list statement_list '}'
+	| '{' declaration_list '}'
+	| '{' statement_list '}'
+	| '{' '}'
+	; 
 
 declaration_list
-	: declaration
-	| declaration_list declaration
+	: declaration_list declaration
+	| declaration
 	;
 
 statement_list
-	: statement
-	| statement_list statement
+	: statement_list statement
+	| statement
 	;
 
 expression_statement
@@ -258,12 +258,12 @@ expression_statement
 selection_statement
 	: T_IF '(' expression ')' statement %prec T_IFX 
 	| T_IF '(' expression ')' statement T_ELSE statement
-	| switch_block
+	| switch_block 
 	;
 
 switch_block
-	: T_SWITCH '(' expression ')' '{' case_list T_DEFAULT ':' statement '}'
-	| T_SWITCH '(' expression ')' '{' case_list '}'
+	: T_SWITCH '(' T_IDENTIFIER ')' '{' case_list T_DEFAULT ':' statement '}'
+	| T_SWITCH '(' T_IDENTIFIER ')' '{' case_list '}'
 	;
 
 case_list
