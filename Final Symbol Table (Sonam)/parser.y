@@ -2,12 +2,15 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#define YYSTYPE char *
 
 	int yylex(void);
 	void yyerror(char *);
 
 
-	 typedef struct entry{
+	// Symbol table node structure
+
+	typedef struct entry{
         int scope;
         int value;
         char name[100];
@@ -21,6 +24,17 @@
 
     // Number of records (identifiers) in the symbol table
     int numRecords = 0;
+
+    // Scope and line number updated in lex file, used to update here, in yacc file
+    extern int current_scope;
+    extern int yylineno;
+
+
+    // Symbol table Function declarations
+    void updateSymbolTable(char* name, char* value, int scope);
+	int findInSymbolTable(int scope, char *name);
+	void displaySymbolTable();
+	int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value);
 
 %}
 
@@ -118,6 +132,8 @@ LIB
 	| STRING_H
 	| TIME_H
 	; */
+
+
 S
 	: PROGRAM
 	;
@@ -156,9 +172,27 @@ VAR_DECL_LIST
 	;
 
 VAR_DECL
-	: TYPE IDENT ASGN_EQ_OP INTNUM ';'
-	| TYPE IDENT ASGN_EQ_OP FLOATNUM ';'
-	| TYPE IDENT ';'
+	: TYPE IDENT ASGN_EQ_OP INTNUM ';' {
+		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
+			yyerror("Variable reinitialized");
+		}
+	}
+	| TYPE IDENT ASGN_EQ_OP FLOATNUM ';' {
+		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
+			yyerror("Variable reinitialized");
+		}
+	}
+	| TYPE IDENT ASGN_EQ_OP IDENT ';' {
+		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
+			yyerror("Variable on LHS reinitialized or variable on RHS not present");
+		}
+	}
+	| TYPE IDENT ';' {
+		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2, yylineno, "0")){
+			yyerror("Variable redeclared");
+		}
+		displaySymbolTable();
+	}
 	;
 
 METHOD_DECL_LIST
@@ -251,7 +285,12 @@ EXPR_STMNT
 	;
 
 ASGN_STMNT
-	: REF_VAR_EXPR ASGN_EQ_OP EXPR ';'
+	: REF_VAR_EXPR ASGN_EQ_OP EXPR ';' {
+		if (findInSymbolTable(current_scope, $1) == -1) {
+		      yyerror("Variable not declared");
+		}
+		updateSymbolTable($1, $3, current_scope);
+	}
 	;
 
 /*
@@ -327,7 +366,11 @@ REF_CALL_EXPR
 
 IDENT_EXPR
 	: ID '[' EXPR ']'
-	| ID
+	| ID {
+		if(findInSymbolTable(current_scope, $1) == -1){
+			yyerror("Variable not declared");
+		}
+	}
 	;
 
 CALL_EXPR
@@ -351,19 +394,41 @@ ARG
 // Symbol table functions
 
 // Returns 1 if valid insertion, else 0 if identifier already exists
-int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no){
+int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value){
 	
 	// Check if identifier already present in the same scope
-	for(int j = 1; j <= *count; ++j){
+	for(int j = 0; j < *count; ++j){
 		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope){ // one more condition?
 			return 0;
 		}
 	}
 
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	for(int i = 0; i < *count; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope){
+		    identifierIndex = i;
+		}
+	}
+
+	int finalValue;
+
+	// If variable, assign its value to current variable, else the number itself (converted from string to number)
+	if(identifierIndex == -1){
+		finalValue = atoi(value);
+	}
+	else{
+		finalValue = symbolTable[identifierIndex].value;
+	}
+
+
 	// If not, insert values in symbol table
 	symbolTable[*count].scope = scope;
     symbolTable[*count].line_no = line_no;
-    symbolTable[*count].value = 0;
+    symbolTable[*count].value = finalValue;
     strcpy(symbolTable[*count].name, name);
     strcpy(symbolTable[*count].datatype, datatype);
     symbolTable[*count].valid = scope;
@@ -374,12 +439,10 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
     return 1;
 }
 
-
-void displaySymbolTable()
-{
+void displaySymbolTable(){
         printf("Printing symbol table: \n");
         printf("Token\t\tData type\tScope\t\tValue\t\tLine number\n");
-        for(int i = 1; i <= numRecords; ++i)
+        for(int i = 0; i < numRecords; ++i)
         {
         	printf("%s\t\t%s\t\t%d\t\t%d\t\t%d\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, symbolTable[i].value, symbolTable[i].line_no);
         }
@@ -389,8 +452,8 @@ void displaySymbolTable()
 // Returns position if finds record, else -1
 int findInSymbolTable(int  scope, char *name){
 	int present = 0;
-	for(int i = 1; i <= numRecords; ++i){
-		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
+	for(int i = 0; i < numRecords; ++i){
+		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope){
 		    return i;
 		}
 	}
@@ -399,20 +462,45 @@ int findInSymbolTable(int  scope, char *name){
 
 
 // Update value of identifier in symbol table (on assignment)
-void updateSymbolTable(char* name, int value, int scope){
-  for(int i = 1; i <= numRecords; ++i)
-  {
-    if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope == scope && symbolTable[i].valid){
-        symbolTable[i].value = value;
-    }
-  }
+void updateSymbolTable(char* name, char* value, int scope){
+
+
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	for(int i = 0; i < numRecords; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope && symbolTable[i].valid){
+		    identifierIndex = i;
+		}
+	}
+
+	int finalValue;
+
+	// If variable, assign its value to current variable, else the number itself (converted from string to number)
+	if(identifierIndex == -1){
+		finalValue = atoi(value);
+	}
+	else{
+		finalValue = symbolTable[identifierIndex].value;
+	}
+
+	for(int i = 0; i < numRecords; ++i){
+		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope == scope && symbolTable[i].valid){
+			symbolTable[i].value = finalValue;
+		}
+	}
 }
 
 void yyerror(char *s){
-	printf("%s\n", s);
+	extern int yylineno;
+	printf("\n\nERROR:\n Line number: %d \t Error: %s\n", yylineno, s);
 }
 
 int main(){
+	current_scope = 0;
+	numRecords = 0;
 	yyparse();
 	return 0;
 }

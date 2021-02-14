@@ -11,7 +11,7 @@
 
 
 	// scope of identifiers till now
-	int current_scope = 1;
+	int current_scope = 0;
 
 %}
 
@@ -30,6 +30,8 @@ SPACE [ \t\r\n]
 	// "//".*["\n"*]			{ line++; };
 	// "/*"(.|"\n")*"*/"(" "|\n)*	{ line++; };
 
+
+[\n]				{ yylineno++; }
 
 	/*	Comments	*/
 
