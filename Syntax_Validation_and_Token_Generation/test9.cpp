@@ -5,7 +5,7 @@ class
 double a = 3.1415e+3;
 int arr[5];
 
-int fun(){
+int fun(int w[]){
 	int i=0;
 	while(i>=0){
 		if(i==0){
@@ -22,7 +22,8 @@ int fun(){
 		}
 		else{
 			int l; 
-			while (--j < 20);
+			while (--j < 20)
+				int a = 10;
 		}
 	}
 	switch(a)
@@ -37,15 +38,22 @@ int fun(){
 				{
 					case 1: p= 20;
 						j = 90;
+						int a = 9;
 					case 3:
 						--p;
 						break;
 
 					default:
 						h = i / k;
+						int arr1[9];
 						break;
 				}
 			}
 	default: break;
 	}
+}
+
+int main() {
+	int a1[9];
+	int a = fun(a1[7]);
 }
