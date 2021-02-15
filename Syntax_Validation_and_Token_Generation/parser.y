@@ -5,7 +5,9 @@
 #include<string.h>
 
 int yylex();
-void yyerror();
+void yyerror(char *);
+extern int yylineno;
+int valid = 1;
 
 %}
 
@@ -228,16 +230,16 @@ all_statement
 
 single_statement
 	: declaration
-	| expression_statement
-	| selection_statement
-	| iteration_statement
-	| T_BREAK ';'
-	| T_CONTINUE ';'
+	| simple_statement
 	;
 
 statement
 	: compound_statement
-	| expression_statement
+	| simple_statement
+	;
+
+simple_statement
+	: expression_statement
 	| selection_statement
 	| iteration_statement
 	| T_BREAK ';'
@@ -276,8 +278,8 @@ selection_statement
 	;
 
 switch_block
-	: T_SWITCH '(' T_IDENTIFIER ')' '{' case_list T_DEFAULT ':' case_statement '}'
-	| T_SWITCH '(' T_IDENTIFIER ')' '{' case_list '}'
+	: T_SWITCH '(' expression ')' '{' case_list T_DEFAULT ':' case_statement '}'
+	| T_SWITCH '(' expression ')' '{' case_list '}'
 	;
 
 case_list
@@ -286,8 +288,9 @@ case_list
 	;
 
 case_statement
-	: single_statement case_statement
-	| single_statement
+	: simple_statement case_statement
+	| simple_statement
+	| compound_statement
 	;
 
 iteration_statement
@@ -316,13 +319,18 @@ function_definition
 
 %%
 
-void yyerror()
+void yyerror(char *s)
 {
-	printf("Parsing Unsuccessful!!\n");
+ 	fprintf(stderr,"\n%s at line no %d\n", s, yylineno);  
+	valid = 0;
 }
 
 int main()
 {
 	yyparse();
+	if (valid)
+		printf("\nParsing Successful :)\n\n");
+	else
+		printf("\nParsing Unsuccessful :(\n\n");
 	return 0;
 }
