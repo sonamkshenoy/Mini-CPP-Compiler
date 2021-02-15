@@ -1,6 +1,7 @@
 #include<iostream>
 #include<compilerdesign.h>
 class 
+
 // is this a good code or not 
 double a = 3.1415e+3;
 int arr[5];
@@ -16,9 +17,10 @@ int fun(int w[]){
 			
 			while(k>=0)
 				k=k-1;
+
 		}
 		else if(i>0){
-			int k;
+			int k; 			
 		}
 		else{
 			int l; 
@@ -34,20 +36,24 @@ int fun(int w[]){
 	case 3: 
 		while ( i++ < 10)
 			{
-				switch (i)
+				switch (i++)
 				{
 					case 1: p= 20;
 						j = 90;
-						int a = 9;
+						
 					case 3:
 						--p;
 						break;
 
 					default:
+						{
 						h = i / k;
-						int arr1[9];
 						break;
+						int u = 90;
+						{}
+						}
 				}
+				int a = 90;
 			}
 	default: break;
 	}
@@ -56,4 +62,6 @@ int fun(int w[]){
 int main() {
 	int a1[9];
 	int a = fun(a1[7]);
+	{{}{}}
+	//wli=;
 }
