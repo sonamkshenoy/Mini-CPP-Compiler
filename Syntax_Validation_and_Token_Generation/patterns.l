@@ -10,6 +10,8 @@
 	
 %}
 
+%option yylineno
+
 D			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
@@ -18,15 +20,19 @@ FS			(f|F|l|L)
 IS			(u|U|l|L)*
 ID 			{L}({L}|{D})*
 
-%option yylineno
+
 
 %%
 
 	/*	Headers and Libraries	*/
 .*\/\/.*    			{;}
 .*"/*"([^*]|\*+[^*/])*+\*"/" 	{;}
-"#include"[ ]*"<".*">"\n 	{printf("%s\n", yytext);}
-"#include"[ ]*"\"".*"\"" 	{printf("%s\n", yytext);}
+"#include"[ ]*"<".*">"\n 	{
+					/*printf("%s\n", yytext);*/
+				}
+"#include"[ ]*"\"".*"\"" 	{
+					/*printf("%s\n", yytext);*/
+				}
 
 
 	/* Constants	*/
@@ -121,8 +127,8 @@ L?\"(\\.|[^\\"])*\"	{ print_token(); return(T_STRING_LITERAL); }
 ";"		{ print_token(); return (';'); }
 ","		{ print_token(); return (','); }
 ":"		{ print_token(); return (':'); }
-("{"|"<%")	{ printf("\n{\t"); return ('{'); }
-("}"|"%>")	{ printf("\t}\n"); return ('}'); }
+("{"|"<%")	{ print_token(); return ('{'); }
+("}"|"%>")	{ print_token(); return ('}'); }
 "("		{ print_token(); return ('('); }
 ")"		{ print_token(); return (')'); }
 
@@ -133,9 +139,11 @@ L?\"(\\.|[^\\"])*\"	{ print_token(); return(T_STRING_LITERAL); }
 "?"		{ print_token(); return('?'); }
 
 
-{ID} 		{ print_token(); return(T_IDENTIFIER);}
-[\n]* 		{ printf("\n");}
-[ \t\n\v\f]*	{ printf(" "); }
+{ID} 		{ print_token(); return(T_IDENTIFIER); }
+[\n]*		{ /*printf("\n"); */
+		}
+[ \t\v\f]*	{ /*printf(" "); */
+		}
 
 	/*	Other	*/
 .		{ /* ignore bad characters */ }
@@ -144,7 +152,7 @@ L?\"(\\.|[^\\"])*\"	{ print_token(); return(T_STRING_LITERAL); }
 
 void print_token()
 {
-	ECHO;
+	;
 }
 
 int yywrap(void)
