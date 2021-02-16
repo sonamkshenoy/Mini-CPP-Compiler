@@ -30,6 +30,9 @@
     extern int yylineno;
 
 
+    char currentTypeName[100];
+
+
     // Symbol table Function declarations
     void updateSymbolTable(char* name, char* value, int scope);
 	int findInSymbolTable(int scope, char *name);
@@ -190,16 +193,33 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator '=' initializer
-	| declarator
+	: declarator '=' T_CONSTANT {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $2)){
+			yyerror("Variable reinitialized");
+		}
+		displaySymbolTable();
+	}
+	| declarator '=' T_IDENTIFIER {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $2)){
+			yyerror("Variable on LHS reinitialized or variable on RHS not present");
+		}
+		displaySymbolTable();
+	}
+	| declarator {
+		printf("%s hello %s", currentTypeName, $1);
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1, yylineno, "0")){
+			yyerror("Variable redeclared");
+		}
+		displaySymbolTable();
+	}
 	;
 
 type_specifier
-	: T_VOID
-	| T_CHAR
-	| T_INT
-	| T_FLOAT
-	| T_DOUBLE
+	: T_VOID { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
+	| T_CHAR { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
+	| T_INT { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
+	| T_FLOAT { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
+	| T_DOUBLE { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
 	;
 
 declarator

@@ -49,12 +49,36 @@ ID 			{L}({L}|{D})*
 				}
 
 	/* Constants	*/
-0{D}+{IS}?				{ print_token(yytext, "T_CONSTANT");return(T_CONSTANT); }
-{D}+{IS}?				{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
-L?'(\\.|[^\\'])+'		{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
-{D}+{E}{FS}?			{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+0{D}+{IS}?				{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT");
+							return(T_CONSTANT); 
+						}
+{D}+{IS}?				{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT"); 
+							return(T_CONSTANT); 
+						}
+L?'(\\.|[^\\'])+'		{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT"); 
+							return(T_CONSTANT); 
+						}
+{D}+{E}{FS}?			{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT"); 
+							return(T_CONSTANT); 
+						}
+{D}*"."{D}+({E})?{FS}?	{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT"); 
+							return(T_CONSTANT); 
+						}
+{D}+"."{D}*({E})?{FS}?	{ 
+							yylval = yytext;
+							print_token(yytext, "T_CONSTANT"); 
+							return(T_CONSTANT); 
+						}
 
 
 	/* String Literal	*/
@@ -182,7 +206,11 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 "?"			{ print_token(yytext, "?"); return('?'); }
 
 
-{ID} 		{ print_token(yytext, "T_IDENTIFIER"); return(T_IDENTIFIER); }
+{ID} 		{ 
+				yylval = strdup(yytext);
+				print_token(yytext, "T_IDENTIFIER"); 
+				return(T_IDENTIFIER); 
+			}
 [\n]*		{ print_token(yytext, "whitespace"); }
 [ \t\v\f]*	{ print_token(yytext, "whitespace"); }
 
