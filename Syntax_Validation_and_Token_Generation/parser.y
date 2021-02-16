@@ -1,13 +1,13 @@
 %{
 
-#include <stdio.h>
-#include<stdlib.h>
-#include<string.h>
+	#include <stdio.h>
+	#include<stdlib.h>
+	#include<string.h>
 
-int yylex();
-void yyerror(char *);
-extern int yylineno;
-int valid = 1;
+	int yylex();
+	void yyerror(char *);
+	extern int yylineno;
+	int valid = 1;
 
 %}
 
@@ -25,7 +25,7 @@ int valid = 1;
 %nonassoc T_ELSE
 
 
-%start translation_unit
+%start S
 
 %%
 
@@ -187,6 +187,7 @@ direct_declarator
 	| direct_declarator '(' identifier_list ')'
 	| direct_declarator '(' ')'
 	;
+
 parameter_type_list
 	: parameter_list
 	| parameter_list ',' T_ELLIPSIS
@@ -293,14 +294,14 @@ iteration_statement
 	| T_FOR '(' expression_statement expression_statement expression ')' all_statement 
 	;
 
-translation_unit
-	: external_declaration
-	| translation_unit external_declaration
+member
+	: function_definition 
+	| declaration 
 	;
 
-external_declaration
-	: function_definition
-	| declaration
+class_member
+	: class_member member
+	| member
 	;
 
 function_definition
@@ -308,6 +309,24 @@ function_definition
 	| declaration_specifiers declarator compound_statement
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
+	;
+
+class_declarartion
+	: T_CLASS T_IDENTIFIER '{' T_PRIVATE ':' class_member T_PUBLIC ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' T_PRIVATE ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' T_PUBLIC ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' '}' ';' 
+	;
+
+external_declaration
+	: function_definition
+	| declaration
+	| class_declarartion
+	;
+
+S
+	: S external_declaration
+	| external_declaration	
 	;
 
 %%

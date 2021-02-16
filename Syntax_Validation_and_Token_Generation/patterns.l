@@ -35,7 +35,6 @@ ID 			{L}({L}|{D})*
 					/*printf("%s\n", yytext);*/
 				}
 
-
 	/* Constants	*/
 0{D}+{IS}?				{ print_token(yytext, "T_CONSTANT");return(T_CONSTANT); }
 {D}+{IS}?				{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
@@ -53,12 +52,6 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 "class"		{ print_token(yytext, "T_CLASS"); return(T_CLASS); }
 "public"	{ print_token(yytext, "T_PUBLIC"); return (T_PUBLIC); }
 "private"	{ print_token(yytext, "T_PRIVATE"); return (T_PRIVATE); }
-	/*"using"	{ print_token(yytext, "T_USING"); return (T_USING); }*/
-	/*"namespace"	{ print_token(yytext,""T_NAMESPACE"); return (T_NAMESPACE); }*/
-	/*"std"		{ print_token(yytext, "T_STD"); return (T_STD); }*/
-	/*"print"	{ print_token(yytext,"T_PRINT"); return (T_PRINT); }*/
-	/*"cout"	{ print_token(yytext, "T_COUT"); return (T_COUT); }*/
-	/*"endl"	{ print_token(yytext, "T_END"); return (T_ENDL); }*/
 
 
 	/*	Data Types	*/
@@ -70,7 +63,6 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 
 
 	/*	Control Structures */	
-
 "if"		{ print_token(yytext, "T_IF"); return (T_IF); }
 "else"		{ print_token(yytext, "T_ELSE"); return (T_ELSE); }
 "while"		{ print_token(yytext, "T_WHILE"); return (T_WHILE); }
