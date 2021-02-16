@@ -15,7 +15,7 @@ int main()
 	/*hahhhhhhhhhh
 	 hooooo/*
 	 hehe
-	 */
-int 7;
+	 
+int a;
 // comment
 }

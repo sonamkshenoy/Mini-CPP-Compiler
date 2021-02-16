@@ -25,9 +25,14 @@ ID 			{L}({L}|{D})*
 
 %%
 
+
+	/*	Comments	*/
+
+\/\/.*\n		{ print_token(yytext, "comment"); }
+"/*"([^*]|\*+[^*/])*\*+"/"	{ print_token(yytext, "comment"); }
+
+
 	/*	Headers and Libraries	*/
-.*\/\/.*    			{;}
-.*"/*"([^*]|\*+[^*/])*+\*"/" 	{;}
 "#include"[ ]*"<".*">"\n 	{
 					/*printf("%s\n", yytext);*/
 				}
@@ -126,6 +131,11 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 [\n]*		{ print_token(yytext, "whitespace"); }
 [ \t\v\f]*	{ print_token(yytext, "whitespace"); }
 
+
+
+
+
+
 	/*	Other	*/
 .			{  }
 
@@ -140,3 +150,4 @@ int yywrap(void)
 {
 	return 1;
 }
+
