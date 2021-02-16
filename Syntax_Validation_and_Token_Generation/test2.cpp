@@ -1,6 +1,5 @@
 #include<iostream>
 #include<compilerdesign.h>
-class 
 
 // is this a good code or not 
 double a = 3.1415e+3;
