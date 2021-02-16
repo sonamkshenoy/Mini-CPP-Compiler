@@ -19,6 +19,8 @@ class qwerty
 		int f1(int y, int x);
 };
 
+// comment
+
 int main()
 {
 int o;
