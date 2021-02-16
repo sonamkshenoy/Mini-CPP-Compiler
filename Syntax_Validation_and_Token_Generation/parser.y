@@ -15,7 +15,6 @@ int valid = 1;
 %token T_IDENTIFIER T_CONSTANT T_STRING_LITERAL 
 %token T_PTR_OP T_INC_OP T_DEC_OP T_LE_OP T_GE_OP T_EQ_OP T_NE_OP
 %token T_AND_OP T_OR_OP 
-//%token T_ADD_ASSGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSGIN
 %token T_CHAR T_INT T_FLOAT T_DOUBLE T_VOID
 %token T_CLASS T_PUBLIC T_PRIVATE
 %token T_ELLIPSIS
@@ -27,7 +26,6 @@ int valid = 1;
 
 
 %start translation_unit
-
 
 %%
 
@@ -137,11 +135,6 @@ assignment_expression
 
 assignment_operator
 	: '='
-//	| T_MUL_ASSIGN
-//	| T_DIV_ASSIGN
-//	| T_MOD_ASSIGN
-//	| T_ADD_ASSIGN
-//	| T_SUB_ASSIGN
 	;
 
 expression
@@ -172,6 +165,7 @@ init_declarator
 	: declarator '=' initializer
 	| declarator
 	;
+
 type_specifier
 	: T_VOID
 	| T_CHAR
@@ -302,7 +296,6 @@ iteration_statement
 translation_unit
 	: external_declaration
 	| translation_unit external_declaration
-	| T_CLASS external_declaration
 	;
 
 external_declaration
