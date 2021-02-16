@@ -8,210 +8,198 @@
 	extern YYSTYPE yylval;
 
 	void yyerror(char *);
+	void print_token(char *text, char *tokentext);
 
 
 	// scope of identifiers till now
 	int current_scope = 0;
 
+	extern void incrementScope();
+	extern void decrementScope();
+
 %}
 
-INTNUM [0-9]+
-FLOATNUM [0-9]+\.[0-9]+
-ID [A-Za-z][A-Za-z0-9_]*     
-SPACE [ \t\r\n]
+%option yylineno
+
+
+D			[0-9]
+L			[a-zA-Z_]
+H			[a-fA-F0-9]
+E			[Ee][+-]?{D}+
+FS			(f|F|l|L)
+IS			(u|U|l|L)*
+ID 			{L}({L}|{D})*
 
 
 %%
 
 
-	/*	Lines	*/
-
-	// [\n]				{ line++; }
-	// "//".*["\n"*]			{ line++; };
-	// "/*"(.|"\n")*"*/"(" "|\n)*	{ line++; };
-
-
-[\n]				{ yylineno++; }
-
 	/*	Comments	*/
 
-
-	/*	Main Function	*/
-"main"	{ return MAIN; }
+\/\/.*\n		{ print_token(yytext, "comment"); }
+"/*"([^*]|\*+[^*/])*\*+"/"	{ print_token(yytext, "comment"); }
 
 
 	/*	Headers and Libraries	*/
-	/*
-"#"				{ return HASH; }
-"include"			{ return INCLUDE; }
-"stdlib.h"			{ return STDLIB; }
-"iostream"			{ return IOSTREAM; }
-"math.h"			{ return MATH_H; }
-"string.h"			{ return STRING_H; }
-"time.h"			{ return TIME_H; }
-\"{alphanum}+(".h"|".c")\"	{ return HEADERFILE; }
-	*/
+"#include"[ ]*"<".*">"\n 	{
+					/*printf("%s\n", yytext);*/
+				}
+"#include"[ ]*"\"".*"\"" 	{
+					/*printf("%s\n", yytext);*/
+				}
+
+	/* Constants	*/
+0{D}+{IS}?				{ print_token(yytext, "T_CONSTANT");return(T_CONSTANT); }
+{D}+{IS}?				{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+L?'(\\.|[^\\'])+'		{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+{D}+{E}{FS}?			{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ print_token(yytext, "T_CONSTANT"); return(T_CONSTANT); }
+
+
+	/* String Literal	*/
+L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_LITERAL); }
+
+
+	/* Language Constructs	*/
+"class"		{ print_token(yytext, "T_CLASS"); return(T_CLASS); }
+"public"	{ print_token(yytext, "T_PUBLIC"); return (T_PUBLIC); }
+"private"	{ print_token(yytext, "T_PRIVATE"); return (T_PRIVATE); }
+
+
 
 	/*	Data Types	*/
 "void"		{ 
 				yylval = strdup(yytext);
-				return VOID; 
+				print_token(yytext, "T_VOID"); 
+				return (T_VOID); 
 			}
 "char"		{ 
 				yylval = strdup(yytext);
-				return CHAR; 
+				print_token(yytext, "T_CHAR"); 
+				return (T_CHAR); 
 			}
-"int"		{	
-				yylval = strdup(yytext); 
-				return INT; 
+"int"		{ 
+				yylval = strdup(yytext);
+				print_token(yytext, "T_INT"); 
+				return (T_INT); 
 			}
 "float"		{ 
 				yylval = strdup(yytext);
-				return FLOAT; 
+				print_token(yytext, "T_FLOAT"); 
+				return (T_FLOAT); 
 			}
 "double"	{ 
 				yylval = strdup(yytext);
-				return DOUBLE; 
-			}
-"bool"		{ 
-				yylval = strdup(yytext);
-				return BOOL; 
-			}
-"string"	{ 
-				yylval = strdup(yytext);
-				return STRING; 
+				print_token(yytext, "T_DOUBLE"); 
+				return (T_DOUBLE); 
 			}
 
-	/*	Control Structures	*/
-"if"		{ return IF; }
-"else"		{ return ELSE; }
-"while"		{ return WHILE; }
-	/*
-"switch"	{ return SWITCH; }
-"case"		{ return CASE; }
-"default"	{ return DEFAULT; }
-	*/
-
-	/*	Other Statements	*/
-"return"	{ return RETURN; }
-	/*
-"continue"	{ return CONTINUE; }
-"break"		{ return BREAK; }
-"using"		{ return USING; }
-"namespace"	{ return NAMESPACE; }
-"std"		{ return STD; }
-"endl"		{ return ENDL; }
-	*/
-
-	/*	"struct"	{ return STRUCT; }	*/
-"public"	{ return PUBLIC; }
-"private"	{ return PRIVATE; }
-	/*	"protected"	{ return PROTECTED; }	*/
-
-	/*
-"printf"	{ return PRINT; }
-"<<"		{ return COUT_OP; }
-">>"		{ return CIN_OP; }
-"cout"		{ return COUT; }
-"cin"		{ return CIN; }
-	*/
 
 
-	/*
-\".*\"		{ return STRING_LITERAL; }
-	*/
 
-	/*	Assignmet Operators	*/
-	/*
-"+="	{ return ADD_ASGN; }
-"-="	{ return SUB_ASGN; }
-"*="	{ return MUL_ASGN; }
-"/="	{ return DIV_ASGN; }
-"%="	{ return MOD_ASGN; }
-	*/
+	/*	Control Structures */	
+"if"		{ print_token(yytext, "T_IF"); return (T_IF); }
+"else"		{ print_token(yytext, "T_ELSE"); return (T_ELSE); }
+"while"		{ print_token(yytext, "T_WHILE"); return (T_WHILE); }
+"for"		{ print_token(yytext, "T_FOR"); return (T_FOR); }
+	
+"switch"	{ print_token(yytext, "T_SWITCH"); return (T_SWITCH); }
+"case"		{ print_token(yytext, "T_CASE"); return (T_CASE); }
+"default"	{ print_token(yytext, "T_DEFAULT"); return (T_DEFAULT); }
+"break"		{ print_token(yytext, "T_BREAK"); return (T_BREAK); }
+"continue"	{ print_token(yytext, "T_CONTINUE"); return (T_CONTINUE); }
+"return"	{ print_token(yytext, "T_RETURN"); return (T_RETURN); }
+
 
 	/*	Relational Operators	*/
-"<="	{ return LE_OP; }
-">="	{ return GE_OP; }
-"=="	{ return EQ_OP; }
-"!="	{ return NE_OP; }
-"<"	{ return LT_OP; }
-">"	{ return GT_OP;	}
+"<="	{ print_token(yytext, "T_LE_OP"); return (T_LE_OP); }
+">="	{ print_token(yytext, "T_GE_OP"); return (T_GE_OP); }
+"=="	{ print_token(yytext, "T_EQ_OP"); return (T_EQ_OP); }
+"!="	{ print_token(yytext, "T_NE_OP"); return (T_NE_OP); }
+"<"		{ print_token(yytext, "<"); return ('<'); }
+">"		{ print_token(yytext, ">"); return ('>');	}
+
 
 	/*	Logical Operators	*/
-	/*
-"&&"	{ return AND_OP; }
-"||"	{ return OR_OP; }	
-"!"	{ return NOT_OP; }
-	*/
+"&&"	{ print_token(yytext, "T_AND_OP"); return (T_AND_OP); }
+"||"	{ print_token(yytext, "T_OR_OP"); return (T_OR_OP); }	
+"!"		{ print_token(yytext, "!"); return ('!'); }
+
 
 	/*	Arithmetic Operators	*/
-	/*
-"++"	{ return INC_OP; }
-"--"	{ return DEC_OP; }
-	*/
-"+"	{ 
-		yylval = strdup(yytext);
-		return ADD_OP; 
-	}
-"-"	{ 
-		yylval = strdup(yytext);
-		return SUB_OP; 
-	}	
-"*"	{ 
-		yylval = strdup(yytext);
-		return MUL_OP; 
-	}
-"/"	{ 
-		yylval = strdup(yytext);
-		return DIV_OP; 
-	}
-"%"	{ 
-		yylval = strdup(yytext);
-		return MOD_OP; 
-	}
+	/*	Arithmetic Operators	*/
+"++"	{ print_token(yytext, "T_INC_OP"); return (T_INC_OP); }
+"--"	{ print_token(yytext, "T_DEC_OP"); return (T_DEC_OP); }
+
+
+"+"		{ 
+			yylval = strdup(yytext);
+			print_token(yytext, "+"); 
+			return ('+'); 
+		}
+"-"		{ 
+			yylval = strdup(yytext);
+			print_token(yytext, "-"); 
+			return ('-'); 
+		}	
+"*"		{ 
+			yylval = strdup(yytext);
+			print_token(yytext, "*"); 
+			return ('*'); 
+		}
+"/"		{ 
+			yylval = strdup(yytext);
+			print_token(yytext, "/"); 
+			return ('/'); 
+		}
+"%"		{ 
+			yylval = strdup(yytext);
+			print_token(yytext, "%"); 
+			return ('%'); 
+		}
+
 
 
 	/*	Synatx	*/
-"="		{ return ASGN_EQ_OP; }
-("["|"<:")	{ return '['; }
-("]"|":>")	{ return ']'; }
-"."		{ return '.'; }
-";"		{ return ';'; }
-","		{ return ','; }
-":"		{ return ':'; }
-"{"		{ 
-			++current_scope;
-			return '{'; 
-		}
-"}"		{ 
-			--current_scope;
-			return '}'; 
-		}
-"("		{ return '('; }
-")"		{ return ')'; }
+"="			{ print_token(yytext, "="); return ('='); }
+"->"		{ print_token(yytext, "T_PTR_OP"); return (T_PTR_OP); }
+("["|"<:")	{ print_token(yytext, "["); return ('['); }
+("]"|":>")	{ print_token(yytext, "]"); return (']'); }
+"."			{ print_token(yytext, "."); return ('.'); }
+";"			{ print_token(yytext, ";"); return (';'); }
+","			{ print_token(yytext, ","); return (','); }
+":"			{ print_token(yytext, ":"); return (':'); }
+("{"|"<%")	{ print_token(yytext, "{"); return ('{'); }
+("}"|"%>")	{ print_token(yytext, "}"); return ('}'); }
+"("			{ print_token(yytext, "("); return ('('); }
+")"			{ print_token(yytext, ")"); return (')'); }
 
-{INTNUM}	{
-				yylval = strdup(yytext);
-				return INTNUM; 
-			}
-
-{FLOATNUM}	{
-				yylval = strdup(yytext);
-    			return FLOATNUM;
-			}
-
-{ID}	{
-			yylval = strdup(yytext);
-		    return ID;
-		}
-
-{SPACE} {/*do nothing here*/}
+"&"			{ print_token(yytext, "&"); return('&'); }
+"~"			{ print_token(yytext, "~"); return('~'); }
+"^"			{ print_token(yytext, "^"); return('^'); }
+"|"			{ print_token(yytext, "|"); return('|'); }
+"?"			{ print_token(yytext, "?"); return('?'); }
 
 
+{ID} 		{ print_token(yytext, "T_IDENTIFIER"); return(T_IDENTIFIER); }
+[\n]*		{ print_token(yytext, "whitespace"); }
+[ \t\v\f]*	{ print_token(yytext, "whitespace"); }
+
+
+
+
+
+
+	/*	Other	*/
+.			{  }
 
 %%
 
+void print_token(char *text, char *token_text)
+{
+	printf("%s\t\t%s\n", text, token_text);
+}
 
 int yywrap(void)
 {

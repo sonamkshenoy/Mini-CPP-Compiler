@@ -35,356 +35,326 @@
 	int findInSymbolTable(int scope, char *name);
 	void displaySymbolTable();
 	int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value);
+	extern void incrementScope();
+	extern void decrementScope();
 
 %}
 
-
-%token INTNUM FLOATNUM
-%token ID
-%token INT FLOAT VOID DOUBLE BOOL CHAR STRING
-%token MAIN
-%token PRIVATE PUBLIC
-%token IF ELSE WHILE RETURN
-
-/*
-%token MAIN
-%token HASH INCLUDE STDLIB IOSTREAM MATH_H STRING_H TIME_H HEADERFILE 
-%token VOID CHAR INT FLOAT DOUBLE BOOL STRING
-%token IF ELSE WHILE // SWITCH CASE DEFAULT
-%token RETURN // CONTINUE BREAK USING NAMESPACE STD ENDL
-%token PUBLIC PRIVATE	// STRUCT PROTECTED
-//%token PRINT COUTOP CINOP COUT CIN
-%token ID NUM
-*/
-%token ADD_OP SUB_OP MUL_OP DIV_OP MOD_OP // INC_OP DEC_OP
-%token LE_OP GE_OP EQ_OP NE_OP LT_OP GT_OP
-//%token ADD_ASGN SUB_ASGN MUL_ASGN DIV_ASGN MOD_ASGN
-//%token AND_OP OR_OP NOT_OP
+%token T_IDENTIFIER T_CONSTANT T_STRING_LITERAL 
+%token T_PTR_OP T_INC_OP T_DEC_OP T_LE_OP T_GE_OP T_EQ_OP T_NE_OP
+%token T_AND_OP T_OR_OP 
+%token T_CHAR T_INT T_FLOAT T_DOUBLE T_VOID
+%token T_CLASS T_PUBLIC T_PRIVATE
+%token T_ELLIPSIS
+%token T_CASE T_DEFAULT T_IF T_ELSE T_SWITCH T_WHILE T_FOR T_BREAK T_CONTINUE T_RETURN 
 
 
-/*%type C_PROG
-%type PROGRAM
-%type CLASS CLASS_LIST
-%type MEMBER
-%type VAR_DECL VAR_DECL_LIST
-%type METHOD_DECL METHOD_DECL_LIST 
-%type METHOD_DEF METHOD_DEF_LIST
-%type CLASS_METHOD_DEF CLASS_METHOD_DEF_LIST
-%type MAIN_FUNC 
-%type PARAM PARAM_LIST
-%type IDENT
-%type TYPE
-%type COMP_STMNT
-%type STMNT STMNT_LIST
-%type EXPR_STMMT
-%type ASSIGN_STMNT
-%type RET_STMNT
-%type ITER_STMNT
-%type COND_STMNT
-%type EXPR
-%type ASGN_OP_EXPR
-%type REF_EXPR
-%type REF_VAR_EXPR
-%type REF_CALL_EXPR
-%type IDENT_EXPR
-%type CALL_EXPR
-%type ARG ARG_LIST
-*/
+%nonassoc T_IFX
+%nonassoc T_ELSE
 
 
-/* priority definitions from top to down, the priority becomes higher */
-%right ASGN_EQ_OP
-//%right ADD_ASGN SUB_ASGN MUL_ASGN DIV_ASGN MOD_ASGN
-%left EQ_OP NE_OP
-%left LE_OP GE_OP GT_OP LT_OP
-%left ADD_OP SUB_OP
-%left MUL_OP DIV_OP MOD_OP
-%left '(' ')'
-//%left '[' ']'
-//%left '{' '}'
-
-/*no associativity symbols */
-%nonassoc IF_THEN
-%nonassoc ELSE
-// %nonassoc ADD_ASGN SUB_ASGN MUL_ASGN DIV_ASGN MOD_ASGN
-
-
-	
 %start S
 
-
 %%
-/*
+
+primary_expression
+	: T_IDENTIFIER
+	| T_CONSTANT
+	| T_STRING_LITERAL
+	| '(' expression ')'
+	;
+
+postfix_expression
+	: primary_expression
+	| postfix_expression '[' expression ']'
+	| postfix_expression '(' ')'
+	| postfix_expression '(' argument_expression_list ')'
+	| postfix_expression '.' T_IDENTIFIER
+	| postfix_expression T_INC_OP
+	| postfix_expression T_DEC_OP
+	;
+
+argument_expression_list
+	: argument_expression_list ',' assignment_expression
+	| assignment_expression
+	;
+
+unary_expression
+	: postfix_expression
+	| T_INC_OP unary_expression 
+	| T_DEC_OP unary_expression 
+	| unary_operator unary_expression
+	;
+
+unary_operator
+	: '&'
+	| '*'
+	| '+'
+	| '-'
+	| '~'
+	| '!'
+	;
+
+multiplicative_expression
+	: unary_expression
+	| multiplicative_expression '*' unary_expression
+	| multiplicative_expression '/' unary_expression
+	| multiplicative_expression '%' unary_expression
+	;
+
+additive_expression
+	: multiplicative_expression
+	| additive_expression '+' multiplicative_expression
+	| additive_expression '-' multiplicative_expression
+	;
+
+shift_expression
+	: additive_expression
+	;
+
+relational_expression
+	: shift_expression
+	| relational_expression '<' shift_expression
+	| relational_expression '>' shift_expression
+	| relational_expression T_LE_OP shift_expression
+	| relational_expression T_GE_OP shift_expression
+	;
+
+equality_expression
+	: relational_expression
+	| equality_expression T_EQ_OP relational_expression
+	| equality_expression T_NE_OP relational_expression
+	;
+
+and_expression
+	: equality_expression
+	| and_expression '&' equality_expression
+	;
+
+exclusive_or_expression
+	: and_expression
+	| exclusive_or_expression '^' and_expression
+	;
+
+inclusive_or_expression
+	: exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression
+	;
+
+logical_and_expression
+	: inclusive_or_expression
+	| logical_and_expression T_AND_OP inclusive_or_expression
+	;
+
+logical_or_expression
+	: logical_and_expression
+	| logical_or_expression T_OR_OP logical_and_expression
+	;
+
+conditional_expression
+	: logical_or_expression
+	| logical_or_expression '?' expression ':' conditional_expression
+	;
+
+assignment_expression
+	: unary_expression assignment_operator assignment_expression 
+	| conditional_expression
+	;
+
+assignment_operator
+	: '='
+	;
+
+expression
+	: expression ',' assignment_expression
+	| assignment_expression
+	;
+
+constant_expression
+	: conditional_expression
+	;
+
+declaration
+	: declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers ';'
+	;
+
+declaration_specifiers
+	: type_specifier declaration_specifiers 
+	| type_specifier
+	;
+
+init_declarator_list
+	: init_declarator_list ',' init_declarator
+	| init_declarator
+	;
+
+init_declarator
+	: declarator '=' initializer
+	| declarator
+	;
+
+type_specifier
+	: T_VOID
+	| T_CHAR
+	| T_INT
+	| T_FLOAT
+	| T_DOUBLE
+	;
+
+declarator
+	: direct_declarator
+	;
+
+direct_declarator
+	: T_IDENTIFIER
+	| '(' declarator ')'
+	| direct_declarator '[' constant_expression ']'
+	| direct_declarator '[' ']'
+	| direct_declarator '(' parameter_type_list ')'
+	| direct_declarator '(' identifier_list ')'
+	| direct_declarator '(' ')'
+	;
+
+parameter_type_list
+	: parameter_list
+	| parameter_list ',' T_ELLIPSIS
+	;
+
+parameter_list
+	: parameter_declaration
+	| parameter_list ',' parameter_declaration
+	;
+
+parameter_declaration
+	: declaration_specifiers declarator
+	| declaration_specifiers
+	;
+
+identifier_list
+	: identifier_list ',' T_IDENTIFIER
+	| T_IDENTIFIER
+	;
+
+initializer
+	: assignment_expression
+	| '{' initializer_list '}'
+	;
+
+initializer_list
+	: initializer_list ',' initializer
+	| initializer
+	;
+
+all_statement
+	: single_statement
+	| compound_statement
+	;
+
+single_statement
+	: declaration
+	| simple_statement
+	;
+
+statement
+	: compound_statement
+	| simple_statement
+	;
+
+simple_statement
+	: expression_statement
+	| selection_statement
+	| iteration_statement
+	| T_BREAK ';'
+	| T_CONTINUE ';'
+	;
+
+compound_statement
+	: '{' declaration_list statement_list declaration_list '}'
+	| '{' statement_list declaration_list statement_list  '}'
+	| '{' statement_list declaration_list  '}'
+	| '{' declaration_list statement_list '}'
+	| '{' declaration_list '}'
+	| '{' statement_list '}'
+	| '{' '}'
+	; 
+
+declaration_list
+	: declaration_list declaration
+	| declaration
+	;
+
+statement_list
+	: statement_list statement
+	| statement
+	;
+
+expression_statement
+	: ';'
+	| expression ';'
+	;
+
+selection_statement
+	: T_IF '(' expression ')' all_statement %prec T_IFX  
+	| T_IF '(' expression ')' all_statement T_ELSE all_statement
+	| switch_block 
+	;
+
+switch_block
+	: T_SWITCH '(' expression ')' '{' case_list T_DEFAULT ':' case_statement '}'
+	| T_SWITCH '(' expression ')' '{' case_list '}'
+	;
+
+case_list
+	: case_list T_CASE T_CONSTANT ':' case_statement
+	| T_CASE T_CONSTANT ':' case_statement
+	;
+
+case_statement
+	: simple_statement case_statement
+	| simple_statement
+	| compound_statement
+	;
+
+iteration_statement
+	: T_WHILE '(' expression ')' all_statement
+	| T_FOR '(' expression_statement expression_statement ')' all_statement 
+	| T_FOR '(' expression_statement expression_statement expression ')' all_statement 
+	;
+
+member
+	: function_definition 
+	| declaration 
+	;
+
+class_member
+	: class_member member
+	| member
+	;
+
+function_definition
+	: declaration_specifiers declarator declaration_list compound_statement 
+	| declaration_specifiers declarator compound_statement
+	| declarator declaration_list compound_statement
+	| declarator compound_statement
+	;
+
+class_declarartion
+	: T_CLASS T_IDENTIFIER '{' T_PRIVATE ':' class_member T_PUBLIC ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' T_PRIVATE ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' T_PUBLIC ':' class_member '}' ';' 
+	| T_CLASS T_IDENTIFIER '{' '}' ';' 
+	;
+
+external_declaration
+	: function_definition
+	| declaration
+	| class_declarartion
+	;
+
 S
-	: C_PROG
-	;
-
-C_PROG 
-	: HASH INCLUDE LT_OP LIB GT_OP PROGRAM
-	| HASH INCLUDE HEADERFILE PROGRAM
-	| PROGRAM
-	;
-		
-LIB
-	: STDLIB
-	| IOSTREAM
-	| MATH_H
-	| STRING_H
-	| TIME_H
-	; */
-
-
-S
-	: PROGRAM
-	;
-
-PROGRAM : CLASS_LIST CLASS_METHOD_DEF_LIST MAIN_FUNC
-	| CLASS_LIST MAIN_FUNC
-	| CLASS_METHOD_DEF_LIST MAIN_FUNC
-	| MAIN_FUNC
-	;
-
-CLASS_LIST
-	: CLASS 
-	| CLASS_LIST CLASS
-	;
-
-CLASS
-	: TYPE ID '{' PRIVATE ':' MEMBER PUBLIC ':' MEMBER '}' ';'
-	| TYPE ID '{' PRIVATE ':' MEMBER '}' ';'
-	| TYPE ID '{' PUBLIC ':' MEMBER '}' ';'
-	| TYPE ID '{' '}' ';'
-	;
-
-MEMBER
-	: VAR_DECL_LIST METHOD_DECL_LIST METHOD_DEF_LIST
-	| VAR_DECL_LIST METHOD_DECL_LIST
-	| VAR_DECL_LIST METHOD_DEF_LIST
-	| METHOD_DECL_LIST METHOD_DEF_LIST
-	| VAR_DECL_LIST
-	| METHOD_DECL_LIST
-	| METHOD_DEF_LIST
-	;
-
-VAR_DECL_LIST
-	: VAR_DECL_LIST VAR_DECL
-	| VAR_DECL
-	;
-
-VAR_DECL
-	: TYPE IDENT ASGN_EQ_OP INTNUM ';' {
-		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
-			yyerror("Variable reinitialized");
-		}
-	}
-	| TYPE IDENT ASGN_EQ_OP FLOATNUM ';' {
-		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
-			yyerror("Variable reinitialized");
-		}
-	}
-	| TYPE IDENT ASGN_EQ_OP IDENT ';' {
-		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2,  yylineno, $4)){
-			yyerror("Variable on LHS reinitialized or variable on RHS not present");
-		}
-	}
-	| TYPE IDENT ';' {
-		if(!insertInSymbolTable(&numRecords, current_scope, $1, $2, yylineno, "0")){
-			yyerror("Variable redeclared");
-		}
-		displaySymbolTable();
-	}
-	;
-
-METHOD_DECL_LIST
-	: METHOD_DECL
-	| METHOD_DECL_LIST METHOD_DECL
-	;
-
-METHOD_DECL
-	: TYPE ID '(' PARAM_LIST ')' ';'
-	| TYPE ID '(' ')' ';'
-	;
-
-METHOD_DEF_LIST 
-	: METHOD_DEF
-	| METHOD_DEF_LIST METHOD_DEF
-	;
-
-METHOD_DEF
-	: TYPE ID '(' PARAM_LIST ')' COMP_STMNT
-	| TYPE ID '(' ')' COMP_STMNT
-	;
-
-CLASS_METHOD_DEF_LIST 
-	: CLASS_METHOD_DEF
-	| CLASS_METHOD_DEF_LIST CLASS_METHOD_DEF
-	;
-
-CLASS_METHOD_DEF
-	: TYPE ID ':' ':' ID '(' PARAM_LIST ')' COMP_STMNT
-	| TYPE ID ':' ':' ID '(' ')' COMP_STMNT
-	;
-
-MAIN_FUNC
-	: INT MAIN '(' ')' COMP_STMNT
-	| VOID MAIN '(' ')' COMP_STMNT
-	| INT MAIN '(' VOID ')' COMP_STMNT
-	| VOID MAIN '(' VOID ')' COMP_STMNT
-	;
-
-PARAM_LIST
-	: PARAM
-	| PARAM_LIST ',' PARAM
-	;
-
-PARAM
-	: TYPE IDENT
-	;
-
-IDENT
-	: ID
-	| ID '[' INTNUM ']'
-	;
-
-TYPE
-	: VOID 
-	| CHAR
-	| INT
-	| FLOAT
-	| DOUBLE
-	| BOOL
-	| STRING
-	| ID
-	;
-
-COMP_STMNT
-	: '{' '}'
-	| '{' STMNT_LIST '}'
-	| '{' VAR_DECL_LIST STMNT_LIST '}'
-	| '{' VAR_DECL_LIST '}'
-	;
-
-STMNT_LIST
-	: STMNT
-	| STMNT_LIST STMNT
-	;
-	
-STMNT
-	: EXPR_STMNT
-	| ASGN_STMNT
-	| RET_STMNT
-	| ITER_STMNT
-//	| COND_STMNT
-	| COMP_STMNT
-	| ';'
-	;
-
-
-EXPR_STMNT
-	: EXPR ';'
-	;
-
-ASGN_STMNT
-	: REF_VAR_EXPR ASGN_EQ_OP EXPR ';' {
-		if (findInSymbolTable(current_scope, $1) == -1) {
-		      yyerror("Variable not declared");
-		}
-		updateSymbolTable($1, $3, current_scope);
-	}
-	;
-
-/*
-ASGN_OP
-	: ASGN_EQ_OP
-	| ADD_ASGN
-	| SUB_ASGN
-	| MUL_ASGN
-	| DIV_ASGN
-	| MOD_ASGN
-	;
-*/
-
-RET_STMNT
-	: RETURN ';'
-	| RETURN EXPR ';'
-	;
-
-ITER_STMNT
-	: WHILE '(' EXPR ')' STMNT 
-	;
-
-/*
-COND_STMNT
-	: IF '(' EXPR ')' STMNT IF_THEN
-	| IF '(' EXPR ')' STMNT ELSE STMNT
-	;
-*/
-
-EXPR
-	: OP_EXPR
-	| REF_EXPR
-	| INTNUM
-	| FLOATNUM
-	;
-
-OP_EXPR
-	: EXPR ADD_OP EXPR
-	| EXPR SUB_OP EXPR
-	| EXPR MUL_OP EXPR
-	| EXPR DIV_OP EXPR
-	| EXPR MOD_OP EXPR
-	
-	| EXPR LT_OP EXPR
-	| EXPR GT_OP EXPR
-	| EXPR LE_OP EXPR
-	| EXPR GE_OP EXPR
-	| EXPR EQ_OP EXPR
-	| EXPR NE_OP EXPR
-
-	/*
-	| EXPR AND_OP EXPR
-	| EXPR OR_OP EXPR
-	| NOT_OP EXPR 
-	*/
-	| '(' EXPR ')'
-	;
-
-REF_EXPR
-	: REF_VAR_EXPR
-	| REF_CALL_EXPR
-	;
-
-REF_VAR_EXPR
-	: REF_EXPR '.' IDENT_EXPR
-	| IDENT_EXPR
-	;
-
-REF_CALL_EXPR
-	: REF_EXPR '.' CALL_EXPR
-	| CALL_EXPR
-	;
-
-IDENT_EXPR
-	: ID '[' EXPR ']'
-	| ID {
-		if(findInSymbolTable(current_scope, $1) == -1){
-			yyerror("Variable not declared");
-		}
-	}
-	;
-
-CALL_EXPR
-	: ID '(' ARG_LIST ')'
-	| ID '(' ')'
-	;
-
-ARG_LIST
-	: ARG
-	| ARG_LIST ',' ARG
-	;
-
-ARG
-	: EXPR
+	: S external_declaration
+	| external_declaration	
 	;
 
 
@@ -398,7 +368,7 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
 	
 	// Check if identifier already present in the same scope
 	for(int j = 0; j < *count; ++j){
-		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope){ // one more condition?
+		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){ // one more condition?
 			return 0;
 		}
 	}
@@ -409,7 +379,7 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
 
 	for(int i = 0; i < *count; ++i)
 	{
-		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope){
+		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope && symbolTable[i].valid){
 		    identifierIndex = i;
 		}
 	}
@@ -453,7 +423,7 @@ void displaySymbolTable(){
 int findInSymbolTable(int  scope, char *name){
 	int present = 0;
 	for(int i = 0; i < numRecords; ++i){
-		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope){
+		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
 		    return i;
 		}
 	}
@@ -492,6 +462,30 @@ void updateSymbolTable(char* name, char* value, int scope){
 		}
 	}
 }
+
+
+
+// scope stores level at which the variable was declared/initialized. 
+// valid stores depth level till which the outer variable can go to. Says if the variable is valid in a location where its scope is not applicable; hence invalid if valid < scope. 
+// scope stored only once. valid changes.
+
+void incrementScope(){
+	for(int i = 0; i < numRecords; ++i){
+	  if(symbolTable[i].valid) symbolTable[i].valid += 1;
+	}
+}
+
+void decrementScope(){
+  for(int i = 0; i < numRecords; ++i){
+    if(symbolTable[i].valid != 0){
+    	symbolTable[i].valid -= 1;
+		if(symbolTable[i].valid < symbolTable[i].scope){
+		  symbolTable[i].valid = 0;
+		}
+    }
+  }
+}
+
 
 void yyerror(char *s){
 	extern int yylineno;
