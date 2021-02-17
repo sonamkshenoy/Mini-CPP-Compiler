@@ -383,6 +383,7 @@ external_declaration
 	: function_definition
 	| declaration
 	| class_declarartion
+	| error {yyerrok; yyclearin;}
 	;
 
 S

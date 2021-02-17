@@ -9,21 +9,21 @@ int main()
 		int f1(int
 */
 
-class qwerty {	
+class qwerty
+{
 	private:
-		int a = 0;
+		int a = 10;
 	public:
 		int g = 90;
-		int f = 5;
-		int f1(int y, int x)	};
+		int f = 0;
+		int f1(int y, int x);
+};
 
 // comment
 
-int main() {	
-	int a = 5;
-	int k;
-	while(k>=0) 
-				k=k-;		}
+int main()
+{
+int o;
 /*
 
 Comment
@@ -34,4 +34,4 @@ int main()
 		int f1(int
 */
 // comment
-
+}

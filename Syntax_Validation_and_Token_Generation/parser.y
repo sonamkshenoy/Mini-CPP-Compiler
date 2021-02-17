@@ -291,7 +291,7 @@ case_statement
 	;
 
 iteration_statement
-	: T_WHILE '(' expression ')' all_statement
+	: T_WHILE '(' expression ')' all_statement 
 	| T_FOR '(' expression_statement expression_statement ')' all_statement 
 	| T_FOR '(' expression_statement expression_statement expression ')' all_statement 
 	;
@@ -324,6 +324,7 @@ external_declaration
 	: function_definition
 	| declaration
 	| class_declarartion
+	| error {yyerrok; yyclearin;}
 	;
 
 S
@@ -335,7 +336,7 @@ S
 
 void yyerror(char *s)
 {
- 	fprintf(stderr,"\n%s at line no %d\n", s, yylineno);  
+ 	printf("\n%s at line no %d\n", s, yylineno);  
 	valid = 0;
 }
 

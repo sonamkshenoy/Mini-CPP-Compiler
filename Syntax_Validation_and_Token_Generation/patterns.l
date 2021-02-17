@@ -143,7 +143,8 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 
 void print_token(char *text, char *token_text)
 {
-	printf("%s\t\t%s\n", text, token_text);
+	printf("%s\t\t%s\n", text, token_text)
+	;
 }
 
 int yywrap(void)
