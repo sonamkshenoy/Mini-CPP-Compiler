@@ -239,6 +239,8 @@ simple_statement
 	| iteration_statement
 	| T_BREAK ';'
 	| T_CONTINUE ';'
+	| T_RETURN expression ';'
+	| T_RETURN ';'
 	;
 
 compound_statement

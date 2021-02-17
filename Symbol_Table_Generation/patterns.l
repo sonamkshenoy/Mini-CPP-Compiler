@@ -50,32 +50,32 @@ ID 			{L}({L}|{D})*
 
 	/* Constants	*/
 0{D}+{IS}?				{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT");
 							return(T_CONSTANT); 
 						}
 {D}+{IS}?				{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT"); 
 							return(T_CONSTANT); 
 						}
 L?'(\\.|[^\\'])+'		{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT"); 
 							return(T_CONSTANT); 
 						}
 {D}+{E}{FS}?			{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT"); 
 							return(T_CONSTANT); 
 						}
 {D}*"."{D}+({E})?{FS}?	{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT"); 
 							return(T_CONSTANT); 
 						}
 {D}+"."{D}*({E})?{FS}?	{ 
-							yylval = yytext;
+							yylval = strdup(yytext);
 							print_token(yytext, "T_CONSTANT"); 
 							return(T_CONSTANT); 
 						}
@@ -194,8 +194,18 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 ";"			{ print_token(yytext, ";"); return (';'); }
 ","			{ print_token(yytext, ","); return (','); }
 ":"			{ print_token(yytext, ":"); return (':'); }
-("{"|"<%")	{ print_token(yytext, "{"); return ('{'); }
-("}"|"%>")	{ print_token(yytext, "}"); return ('}'); }
+("{"|"<%")	{ 	
+				incrementScope();
+				++current_scope;
+				print_token(yytext, "{"); 
+				return ('{'); 
+			}
+("}"|"%>")	{ 
+				decrementScope();
+				--current_scope;
+				print_token(yytext, "}"); 
+				return ('}'); 
+			}
 "("			{ print_token(yytext, "("); return ('('); }
 ")"			{ print_token(yytext, ")"); return (')'); }
 
@@ -226,7 +236,8 @@ L?\"(\\.|[^\\"])*\"	{ print_token(yytext, "T_STRING_LITERAL"); return(T_STRING_L
 
 void print_token(char *text, char *token_text)
 {
-	printf("%s\t\t%s\n", text, token_text);
+	//printf("%s\t\t%s\n", text, token_text)
+	;
 }
 
 int yywrap(void)

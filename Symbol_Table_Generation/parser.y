@@ -61,7 +61,11 @@
 %%
 
 primary_expression
-	: T_IDENTIFIER
+	: T_IDENTIFIER {
+		if(findInSymbolTable(current_scope, $1) == -1){
+			yyerror("Variable not declared");
+		}
+	}
 	| T_CONSTANT
 	| T_STRING_LITERAL
 	| '(' expression ')'
@@ -160,7 +164,13 @@ conditional_expression
 	;
 
 assignment_expression
-	: unary_expression assignment_operator assignment_expression 
+	: unary_expression assignment_operator assignment_expression  {
+		if (findInSymbolTable(current_scope, $1) == -1) {
+		      yyerror("Variable not declared");
+		}
+		updateSymbolTable($1, $3, current_scope);
+	}
+	;
 	| conditional_expression
 	;
 
@@ -194,19 +204,18 @@ init_declarator_list
 
 init_declarator
 	: declarator '=' T_CONSTANT {
-		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $2)){
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
 			yyerror("Variable reinitialized");
 		}
 		displaySymbolTable();
 	}
 	| declarator '=' T_IDENTIFIER {
-		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $2)){
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
 			yyerror("Variable on LHS reinitialized or variable on RHS not present");
 		}
 		displaySymbolTable();
 	}
 	| declarator {
-		printf("%s hello %s", currentTypeName, $1);
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1, yylineno, "0")){
 			yyerror("Variable redeclared");
 		}
@@ -215,11 +224,11 @@ init_declarator
 	;
 
 type_specifier
-	: T_VOID { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
-	| T_CHAR { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
-	| T_INT { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
-	| T_FLOAT { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
-	| T_DOUBLE { printf("AHEM %s", $1); strcpy(currentTypeName, $1); }
+	: T_VOID { strcpy(currentTypeName, $1); }
+	| T_CHAR { strcpy(currentTypeName, $1); }
+	| T_INT { strcpy(currentTypeName, $1); }
+	| T_FLOAT { strcpy(currentTypeName, $1); }
+	| T_DOUBLE { strcpy(currentTypeName, $1); }
 	;
 
 declarator
@@ -256,6 +265,7 @@ identifier_list
 	| T_IDENTIFIER
 	;
 
+	/*
 initializer
 	: assignment_expression
 	| '{' initializer_list '}'
@@ -265,6 +275,7 @@ initializer_list
 	: initializer_list ',' initializer
 	| initializer
 	;
+	*/
 
 all_statement
 	: single_statement
@@ -287,6 +298,8 @@ simple_statement
 	| iteration_statement
 	| T_BREAK ';'
 	| T_CONTINUE ';'
+	| T_RETURN expression ';'
+	| T_RETURN ';'
 	;
 
 compound_statement
@@ -388,7 +401,7 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
 	
 	// Check if identifier already present in the same scope
 	for(int j = 0; j < *count; ++j){
-		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){ // one more condition?
+		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){
 			return 0;
 		}
 	}
@@ -430,12 +443,33 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
 }
 
 void displaySymbolTable(){
-        printf("Printing symbol table: \n");
-        printf("Token\t\tData type\tScope\t\tValue\t\tLine number\n");
+        printf("\n\nPrinting symbol table: \n");
+        printf("Token\t\tData type\tScope\t\tValue\t\tLine number\tValidity\n");
+        char scopeName[10];
+
+        char validName[10];
+
+
         for(int i = 0; i < numRecords; ++i)
         {
-        	printf("%s\t\t%s\t\t%d\t\t%d\t\t%d\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, symbolTable[i].value, symbolTable[i].line_no);
+        	if(symbolTable[i].scope == 1){
+        		strcpy(scopeName, "Global");
+        	}
+        	else{
+        		strcpy(scopeName, "Local");
+        	}
+
+        	if(symbolTable[i].valid == 1){
+        		strcpy(validName, "Valid");
+        	}
+        	else{
+        		strcpy(validName, "Invalid");
+        	}
+
+        	printf("%s\t\t%s\t\t%d (%s)\t%d\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, symbolTable[i].value, symbolTable[i].line_no, symbolTable[i].valid, validName);
         }
+
+        printf("\n\n");
 }
 
 
@@ -513,7 +547,7 @@ void yyerror(char *s){
 }
 
 int main(){
-	current_scope = 0;
+	current_scope = 1;
 	numRecords = 0;
 	yyparse();
 	return 0;
