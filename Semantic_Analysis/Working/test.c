@@ -4,19 +4,11 @@ int main()
 {
 	int a, b, c, d,e;
 	int temp,s;
-	s = 1;
-	temp = 0;
 	int i = 0;
-	a = 10;
-	b = a;
-	c = b;
-	s = 10*20*30;
-	d = a*b + c;
-	e = a*b + temp;
-	while(i<c)
+	while(i)
 	{
-		d = d + 1;
-		i = i + 1;
+		d = d;
+		i = i;
 	}
 
 	switch(a)
@@ -29,5 +21,12 @@ int main()
 
 		default: temp = 3;	
 	}
-
+	s = 1;
+	temp = 0;
+	a = 10;
+	b = a;
+	c = b;
+	s = 10*20*30;
+	d = a;
+	e = b;
 }

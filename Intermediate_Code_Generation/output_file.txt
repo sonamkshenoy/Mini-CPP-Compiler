@@ -1,18 +1,26 @@
-a = 10
-b = 20
-t0 = a * b
-c = t0
-t1 = a + c
-d = t1
+s = 1
+temp = 0
 0 = i
- L1 :t2 = i < b
-ifFalse t2  goto L3
+a = 10
+b = a
+c = b
+t0 = 10 * 20
+t1 = t0 * 30
+s = t1
+t2 = a * b
+t3 = t2 + c
+d = t3
+t4 = a * b
+t5 = t4 + temp
+e = t5
+ L1 :t6 = i < c
+ifFalse t6  goto L3
 goto L2 
  L2 :
-t3 = d + 1
-d = t3
-t4 = i + 1
-i = t4
+t7 = d + 1
+d = t7
+t8 = i + 1
+i = t8
  goto L1
 L3 : 
  L_case1_1  : ifFalse a = 1 goto L_case2_1 

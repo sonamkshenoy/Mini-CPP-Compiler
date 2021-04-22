@@ -1,0 +1,2 @@
+Only work on symbol table updation.
+We have code for AST.
