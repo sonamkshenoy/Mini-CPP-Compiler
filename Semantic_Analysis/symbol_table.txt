@@ -1,0 +1,22 @@
+TYPE : KEYWORD		 SIZE:    0		 NAME :  char		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :   int		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : float		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :  void		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :  main		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : while		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : struct		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ 
+TYPE :   int		 SIZE:    4		 NAME :     b		VALUE : 6.000000		 SCOPE:     1		  LINENUMBER:    5		  
+ TYPE : array(1,array(2,array(3,int)))		 SIZE:   24		 NAME :     a		VALUE :      		 SCOPE:     1		  LINENUMBER:    5		  
+ TYPE :   int		 SIZE:    4		 NAME :     c		VALUE : 14.000000		 SCOPE:     1		  LINENUMBER:    5		  
+ TYPE :   int		 SIZE:    4		 NAME :  temp		VALUE :     3		 SCOPE:     1		  LINENUMBER:    6		  
+ TYPE :   int		 SIZE:    4		 NAME :     d		VALUE : 20.000000		 SCOPE:     1		  LINENUMBER:    7		  
+ 
+TYPE : KEYWORD		 SIZE:    0		 NAME :  char		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :   int		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : float		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :  void		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME :  main		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : while		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ TYPE : KEYWORD		 SIZE:    0		 NAME : struct		VALUE :      		 SCOPE:     0		  LINENUMBER:    0		  
+ 
