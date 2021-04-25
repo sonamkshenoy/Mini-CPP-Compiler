@@ -138,46 +138,90 @@ shift_expression
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression T_LE_OP shift_expression
-	| relational_expression T_GE_OP shift_expression
+	| relational_expression '<' shift_expression { 
+		int value = doOperation($1, $3, '<', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression '>' shift_expression { 
+		int value = doOperation($1, $3, '>', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression T_LE_OP shift_expression { 
+		int value = doOperation($1, $3, 'y', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression T_GE_OP shift_expression { 
+		int value = doOperation($1, $3, 'z', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression T_EQ_OP relational_expression
-	| equality_expression T_NE_OP relational_expression
+	| equality_expression T_EQ_OP relational_expression { 
+		int value = doOperation($1, $3, 'w', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| equality_expression T_NE_OP relational_expression { 
+		int value = doOperation($1, $3, 'x', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression '&' equality_expression { 
+		int value = doOperation($1, $3, '&', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression { 
+		int value = doOperation($1, $3, '^', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression { 
+		int value = doOperation($1, $3, '|', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression T_AND_OP inclusive_or_expression
+	| logical_and_expression T_AND_OP inclusive_or_expression { 
+		int value = doOperation($1, $3, 'v', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression T_OR_OP logical_and_expression
+	| logical_or_expression T_OR_OP logical_and_expression { 
+		int value = doOperation($1, $3, 'u', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	| logical_or_expression '?' expression ':' conditional_expression { 
+		int value;
+
+		if(atoi($1)){
+			// Sending to "doOperation" since the RHS can be an identifier too. Using add operation as dummy operation (just adding with 0)
+			value = doOperation($3, "0", '+', current_scope);
+		}
+		else{
+			value = doOperation($5, "0", '+', current_scope);
+		}
+		sprintf($$, "%d", value);
+	}
 	;
 
 assignment_expression
@@ -555,6 +599,9 @@ void decrementScope(){
   }
 }
 
+
+// Needed this function only to check if the elements we are performing the operation (relational/logical/arithmetic) are identifiers or numbers. Else could directly write int value = atoi($1) + atoi($3); sprintf($$, "%d", value) in the rule itself.
+
 int doOperation(char* first, char* second, char op, int scope){
 	// Check if the value passed is a variable or a number
 
@@ -578,6 +625,17 @@ int doOperation(char* first, char* second, char op, int scope){
 		case '-': return firstval - secondval;
 		case '*': return firstval * secondval;
 		case '/': return firstval / secondval;
+		case '<': return firstval < secondval;
+		case '>': return firstval > secondval;
+		case '^': return firstval ^ secondval;
+		case '|': return firstval | secondval;
+		case '&': return firstval & secondval;
+		case 'u': return firstval || secondval;
+		case 'v': return firstval && secondval;
+		case 'w': return firstval == secondval;
+		case 'x': return firstval != secondval;
+		case 'y': return firstval <= secondval;
+		case 'z': return firstval >= secondval;
 	}
 	
 }
