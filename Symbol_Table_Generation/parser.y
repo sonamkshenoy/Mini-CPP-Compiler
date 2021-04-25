@@ -106,20 +106,30 @@ unary_operator
 
 multiplicative_expression
 	: unary_expression
-	| multiplicative_expression '*' unary_expression
-	| multiplicative_expression '/' unary_expression
-	| multiplicative_expression '%' unary_expression
+	| multiplicative_expression '*' unary_expression { 
+		int value = doOperation($1, $3, '*', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| multiplicative_expression '/' unary_expression { 
+		int value = doOperation($1, $3, '/', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| multiplicative_expression '%' unary_expression { 
+		int value = doOperation($1, $3, '%', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 additive_expression
 	: multiplicative_expression
 	| additive_expression '+' multiplicative_expression { 
-		printf(" ADDING : %s and %s\n", $1, $3);
-
 		int value = doOperation($1, $3, '+', current_scope);
 		sprintf($$, "%d", value);
 	}
-	| additive_expression '-' multiplicative_expression
+	| additive_expression '-' multiplicative_expression { 
+		int value = doOperation($1, $3, '-', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 shift_expression
@@ -560,7 +570,13 @@ int doOperation(char* first, char* second, char op, int scope){
 		}
 	}
 
-	return firstval + secondval;
+	switch(op){
+		case '+': return firstval + secondval;
+		case '-': return firstval - secondval;
+		case '*': return firstval * secondval;
+		case '/': return firstval / secondval;
+	}
+	
 }
 
 
