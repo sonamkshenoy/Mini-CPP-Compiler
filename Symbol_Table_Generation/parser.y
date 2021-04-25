@@ -447,7 +447,7 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
     symbolTable[*count].value = finalValue;
     strcpy(symbolTable[*count].name, name);
     strcpy(symbolTable[*count].datatype, datatype);
-    symbolTable[*count].valid = 1;
+    symbolTable[*count].valid = scope;
 
     // Increment count of number of records in symbol table
     *count = *count + 1;
@@ -472,7 +472,7 @@ void displaySymbolTable(){
         		strcpy(scopeName, "Local");
         	}
 
-        	if(symbolTable[i].valid == 1){
+        	if(symbolTable[i].valid >= symbolTable[i].scope){
         		strcpy(validName, "Valid");
         	}
         	else{

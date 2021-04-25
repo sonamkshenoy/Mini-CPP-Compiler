@@ -12,7 +12,7 @@
 
 
 	// scope of identifiers till now
-	int current_scope = 0;
+	int current_scope = 1;
 
 	extern void incrementScope();
 	extern void decrementScope();
