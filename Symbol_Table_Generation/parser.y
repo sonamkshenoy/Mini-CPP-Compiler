@@ -31,6 +31,7 @@
 
 
     char currentTypeName[100];
+	int inInitDeclarator = 0;
 
 
     // Symbol table Function declarations
@@ -40,6 +41,7 @@
 	int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value);
 	extern void incrementScope();
 	extern void decrementScope();
+	int doOperation(char* first, char* second, char op, int scope);
 
 %}
 
@@ -111,7 +113,12 @@ multiplicative_expression
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
+	| additive_expression '+' multiplicative_expression { 
+		printf(" ADDING : %s and %s\n", $1, $3);
+
+		int value = doOperation($1, $3, '+', current_scope);
+		sprintf($$, "%d", value);
+	}
 	| additive_expression '-' multiplicative_expression
 	;
 
@@ -171,7 +178,7 @@ assignment_expression
 		updateSymbolTable($1, $3, current_scope);
 	}
 	;
-	| conditional_expression
+	| conditional_expression 
 	;
 
 assignment_operator
@@ -203,13 +210,7 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator '=' T_CONSTANT {
-		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
-			yyerror("Variable reinitialized");
-		}
-		displaySymbolTable();
-	}
-	| declarator '=' T_IDENTIFIER {
+	:  declarator '=' conditional_expression {
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
 			yyerror("Variable on LHS reinitialized or variable on RHS not present");
 		}
@@ -399,7 +400,7 @@ S
 
 // Returns 1 if valid insertion, else 0 if identifier already exists
 int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value){
-	
+	printf("Inserting %s = %s\n", name, value);
 	// Check if identifier already present in the same scope
 	for(int j = 0; j < *count; ++j){
 		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){
@@ -435,7 +436,7 @@ int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int l
     symbolTable[*count].value = finalValue;
     strcpy(symbolTable[*count].name, name);
     strcpy(symbolTable[*count].datatype, datatype);
-    symbolTable[*count].valid = scope;
+    symbolTable[*count].valid = 1;
 
     // Increment count of number of records in symbol table
     *count = *count + 1;
@@ -541,6 +542,27 @@ void decrementScope(){
   }
 }
 
+int doOperation(char* first, char* second, char op, int scope){
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	int firstval = atoi(first);
+	int secondval = atoi(second);
+
+	for(int i = 0; i < numRecords; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, first) && symbolTable[i].scope == scope && symbolTable[i].valid){
+		    firstval = symbolTable[i].value;
+		}
+		if(!strcmp(symbolTable[i].name, second) && symbolTable[i].scope == scope && symbolTable[i].valid){
+			secondval = symbolTable[i].value;
+		}
+	}
+
+	return firstval + secondval;
+}
+
 
 void yyerror(char *s){
 	extern int yylineno;
@@ -553,3 +575,24 @@ int main(){
 	yyparse();
 	return 0;
 }
+
+
+/*
+
+Deleted part:
+
+declarator '=' T_CONSTANT {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
+			yyerror("Variable reinitialized");
+		}
+		displaySymbolTable();
+	}
+	| declarator '=' T_IDENTIFIER {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
+			yyerror("Variable on LHS reinitialized or variable on RHS not present");
+		}
+		displaySymbolTable();
+	}
+	|
+
+*/
