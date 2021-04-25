@@ -186,6 +186,7 @@ assignment_expression
 		      yyerror("Variable not declared");
 		}
 		updateSymbolTable($1, $3, current_scope);
+		displaySymbolTable();
 	}
 	;
 	| conditional_expression 
@@ -487,10 +488,12 @@ void displaySymbolTable(){
 
 // Returns position if finds record, else -1
 int findInSymbolTable(int  scope, char *name){
-	int present = 0;
+	// printf("SCANNING %s %d ", name, scope);
 	for(int i = 0; i < numRecords; ++i){
+		// printf("HMM %d HMM", symbolTable[i].valid);
 		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
-		    return i;
+		    // printf("FOUND");
+			return i;
 		}
 	}
 	return -1;
