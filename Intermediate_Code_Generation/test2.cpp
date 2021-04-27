@@ -1,12 +1,15 @@
-#include<iostream>
-#include<compilerdesign.h>
+#include<stdio.h>
+int main() {
+	double a = 3.1415e+3;
+	int arr[5];
 
-// is this a good code or not 
-// it is very very good
-double a = 3.1415e+3;
-int arr[5];
-
-int fun(int w[]){
+	int a1[9];
+	int a = fun(a1[7]);
+	{{}{}}
+	//wli=;
+}
+int fun(int w[])
+{
 	int i=0;
 	while(i>=0){
 		if(i==0){
@@ -59,9 +62,3 @@ int fun(int w[]){
 	}
 }
 
-int main() {
-	int a1[9];
-	int a = fun(a1[7]);
-	{{}{}}
-	//wli=;
-}

@@ -1,34 +1,63 @@
-s = 1
-temp = 0
+10 = a
 0 = i
-a = 10
-b = a
-c = b
-t0 = 10 * 20
-t1 = t0 * 30
-s = t1
-t2 = a * b
-t3 = t2 + c
-d = t3
-t4 = a * b
-t5 = t4 + temp
-e = t5
- L1 :t6 = i < c
-ifFalse t6  goto L3
+ L1 :t0 = i >= 0
+ifFalse t0  goto L3
 goto L2 
  L2 :
-t7 = d + 1
-d = t7
-t8 = i + 1
-i = t8
+10 = i
+j = 20
+t1 = i + j
+k = t1
+ L4 :t2 = k >= 0
+ifFalse t2  goto L6
+goto L5 
+ L5 :
+t3 = k - 1
+k = t3
+ goto L4
+L6 : 
+ L7 :t4 = j - 1
+j = t4
+t5 = l < 20
+ifFalse t5  goto L9
+goto L8 
+ L8 :
+10 = a
+ goto L7
+L9 : 
  goto L1
 L3 : 
  L_case1_1  : ifFalse a = 1 goto L_case2_1 
-temp = 1
- goto L_case0_0
-   L_case2_1  : ifFalse a = 2 goto L_case0_0 
- temp = 2
- goto L_case0_0
-   L_case3_1 :temp = 3
- goto L_case0_0
+t6 = c + d
+b = t6
+j = 90
+ L_case2_1  : ifFalse a = 2 goto L_case0_0 
+ t7 = d + e
+c = t7
+ L_case3_1  : ifFalse a = 3 goto L_case0_0 
+  L10 :t8 = i + 1
+i = t8
+t9 = a < 10
+ifFalse t9  goto L12
+goto L11 
+ L11 :
+t10 = i + 1
+i = t10
+ L_case5_2  : ifFalse j = 1 goto L_case6_2 
+p = 20
+j = 90
+ L_case6_2  : ifFalse j = 3 goto L_case4_1 
+ t11 = p - 1
+p = t11
+ goto L_case4_1
+   L_case7_2 :t12 = i / k
+h = t12
+ goto L_case4_1
+  90 = u
+ goto L_case4_1
+ L_case4_1 :90 = a
+ goto L10
+L12 : 
+ L_case7_1 : goto L_case0_0
+   goto L_case0_0
  L_case0_0 :
