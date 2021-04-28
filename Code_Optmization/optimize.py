@@ -114,7 +114,7 @@ def deadCodeElimination(allLines) :
 
 if __name__ == "__main__":
     allLines = []
-    f = open("icg_output.txt", "r")
+    f = open("output_file.txt", "r")
     for line in f:
         allLines.append(line)
     f.close()
