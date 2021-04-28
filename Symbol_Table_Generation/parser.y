@@ -12,7 +12,7 @@
 
 	typedef struct entry{
         int scope;
-        int value;
+        float value;
         char name[100];
         char datatype[50];
         int line_no;
@@ -252,6 +252,7 @@ constant_expression
 declaration
 	: declaration_specifiers init_declarator_list ';'
 	| declaration_specifiers ';'
+	| assignment_expression ';'
 	;
 
 declaration_specifiers
@@ -523,7 +524,18 @@ void displaySymbolTable(){
         		strcpy(validName, "Invalid");
         	}
 
-        	printf("%s\t\t%s\t\t%d (%s)\t%d\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, symbolTable[i].value, symbolTable[i].line_no, symbolTable[i].valid, validName);
+			int value; int intflag = 0;
+			if(!strcmp(symbolTable[i].datatype, "int")){
+				intflag = 1;
+				value = (int)symbolTable[i].value;
+			}
+
+			if(intflag){
+				printf("%s\t\t%s\t\t%d (%s)\t%d\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, value, symbolTable[i].line_no, symbolTable[i].valid, validName);
+			}
+			else{
+        		printf("%s\t\t%s\t\t%d (%s)\t%f\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, symbolTable[i].value, symbolTable[i].line_no, symbolTable[i].valid, validName);
+			}
         }
 
         printf("\n\n");
@@ -572,6 +584,11 @@ void updateSymbolTable(char* name, char* value, int scope){
 	for(int i = 0; i < numRecords; ++i){
 		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope == scope && symbolTable[i].valid){
 			symbolTable[i].value = finalValue;
+			break;
+		}
+		else if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
+			symbolTable[i].value = finalValue;
+			break;
 		}
 	}
 }

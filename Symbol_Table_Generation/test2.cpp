@@ -7,6 +7,7 @@
 // int arr[5];
 
 int fun(int w[]){
+	int a;
 	int i=0; int k; int j;
 	while(i>=0){
 		if(i==0){
@@ -28,8 +29,7 @@ int fun(int w[]){
 				int a = 10;
 		}
 	}
-	switch(a)
-	{
+	switch(a){
 	case 1:  b = c + d;
 		j = 90;
 	case 2: c = d + e;

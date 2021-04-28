@@ -1,16 +1,49 @@
 %{
-
 	#include <stdio.h>
-	#include<stdlib.h>
-	#include<string.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#define YYSTYPE char *
 
-	int yylex();
+	int yylex(void);
 	void yyerror(char *);
-	extern int yylineno;
-	int valid = 1;
+
+
+	// Symbol table node structure
+
+	typedef struct entry{
+        int scope;
+        float value;
+        char name[100];
+        char datatype[50];
+        int line_no;
+        int valid;
+    }entry;
+
+    entry symbolTable[1000];
+
+
+    // Number of records (identifiers) in the symbol table
+    int numRecords = 0;
+
+    // Scope and line number updated in lex file, used to update here, in yacc file
+    extern int current_scope;
+    extern int yylineno;
+
+
+    char currentTypeName[100];
+	int inInitDeclarator = 0;
+
+
+    // Symbol table Function declarations
+    void updateSymbolTable(char* name, char* value, int scope);
+	int findInSymbolTable(int scope, char *name);
+	void displaySymbolTable();
+	int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value);
+	extern void incrementScope();
+	extern void decrementScope();
+	int doOperation(char* first, char* second, char op, int scope);
 
 %}
-
 
 %token T_IDENTIFIER T_CONSTANT T_STRING_LITERAL 
 %token T_PTR_OP T_INC_OP T_DEC_OP T_LE_OP T_GE_OP T_EQ_OP T_NE_OP
@@ -30,7 +63,11 @@
 %%
 
 primary_expression
-	: T_IDENTIFIER
+	: T_IDENTIFIER {
+		if(findInSymbolTable(current_scope, $1) == -1){
+			yyerror("Variable not declared");
+		}
+	}
 	| T_CONSTANT
 	| T_STRING_LITERAL
 	| '(' expression ')'
@@ -69,15 +106,30 @@ unary_operator
 
 multiplicative_expression
 	: unary_expression
-	| multiplicative_expression '*' unary_expression
-	| multiplicative_expression '/' unary_expression
-	| multiplicative_expression '%' unary_expression
+	| multiplicative_expression '*' unary_expression { 
+		int value = doOperation($1, $3, '*', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| multiplicative_expression '/' unary_expression { 
+		int value = doOperation($1, $3, '/', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| multiplicative_expression '%' unary_expression { 
+		int value = doOperation($1, $3, '%', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression '+' multiplicative_expression { 
+		int value = doOperation($1, $3, '+', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| additive_expression '-' multiplicative_expression { 
+		int value = doOperation($1, $3, '-', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 shift_expression
@@ -86,51 +138,102 @@ shift_expression
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression T_LE_OP shift_expression
-	| relational_expression T_GE_OP shift_expression
+	| relational_expression '<' shift_expression { 
+		int value = doOperation($1, $3, '<', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression '>' shift_expression { 
+		int value = doOperation($1, $3, '>', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression T_LE_OP shift_expression { 
+		int value = doOperation($1, $3, 'y', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| relational_expression T_GE_OP shift_expression { 
+		int value = doOperation($1, $3, 'z', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression T_EQ_OP relational_expression
-	| equality_expression T_NE_OP relational_expression
+	| equality_expression T_EQ_OP relational_expression { 
+		int value = doOperation($1, $3, 'w', current_scope);
+		sprintf($$, "%d", value);
+	}
+	| equality_expression T_NE_OP relational_expression { 
+		int value = doOperation($1, $3, 'x', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression '&' equality_expression { 
+		int value = doOperation($1, $3, '&', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression { 
+		int value = doOperation($1, $3, '^', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression { 
+		int value = doOperation($1, $3, '|', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression T_AND_OP inclusive_or_expression
+	| logical_and_expression T_AND_OP inclusive_or_expression { 
+		int value = doOperation($1, $3, 'v', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression T_OR_OP logical_and_expression
+	| logical_or_expression T_OR_OP logical_and_expression { 
+		int value = doOperation($1, $3, 'u', current_scope);
+		sprintf($$, "%d", value);
+	}
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	| logical_or_expression '?' expression ':' conditional_expression { 
+		int value;
+
+		if(atoi($1)){
+			// Sending to "doOperation" since the RHS can be an identifier too. Using add operation as dummy operation (just adding with 0)
+			value = doOperation($3, "0", '+', current_scope);
+		}
+		else{
+			value = doOperation($5, "0", '+', current_scope);
+		}
+		sprintf($$, "%d", value);
+	}
 	;
 
 assignment_expression
-	: unary_expression assignment_operator assignment_expression 
-	| conditional_expression
+	: unary_expression assignment_operator assignment_expression  {
+		if (findInSymbolTable(current_scope, $1) == -1) {
+		      yyerror("Variable not declared");
+		}
+		updateSymbolTable($1, $3, current_scope);
+		displaySymbolTable();
+	}
+	;
+	| conditional_expression 
 	;
 
 assignment_operator
@@ -149,6 +252,7 @@ constant_expression
 declaration
 	: declaration_specifiers init_declarator_list ';'
 	| declaration_specifiers ';'
+	| assignment_expression ';'
 	;
 
 declaration_specifiers
@@ -162,16 +266,26 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator '=' initializer
-	| declarator
+	:  declarator '=' conditional_expression {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
+			yyerror("Variable on LHS reinitialized or variable on RHS not present");
+		}
+		displaySymbolTable();
+	}
+	| declarator {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1, yylineno, "0")){
+			yyerror("Variable redeclared");
+		}
+		displaySymbolTable();
+	}
 	;
 
 type_specifier
-	: T_VOID
-	| T_CHAR
-	| T_INT
-	| T_FLOAT
-	| T_DOUBLE
+	: T_VOID { strcpy(currentTypeName, $1); }
+	| T_CHAR { strcpy(currentTypeName, $1); }
+	| T_INT { strcpy(currentTypeName, $1); }
+	| T_FLOAT { strcpy(currentTypeName, $1); }
+	| T_DOUBLE { strcpy(currentTypeName, $1); }
 	;
 
 declarator
@@ -208,6 +322,7 @@ identifier_list
 	| T_IDENTIFIER
 	;
 
+	/*
 initializer
 	: assignment_expression
 	| '{' initializer_list '}'
@@ -217,6 +332,7 @@ initializer_list
 	: initializer_list ',' initializer
 	| initializer
 	;
+	*/
 
 all_statement
 	: single_statement
@@ -291,7 +407,7 @@ case_statement
 	;
 
 iteration_statement
-	: T_WHILE '(' expression ')' all_statement 
+	: T_WHILE '(' expression ')' all_statement
 	| T_FOR '(' expression_statement expression_statement ')' all_statement 
 	| T_FOR '(' expression_statement expression_statement expression ')' all_statement 
 	;
@@ -332,20 +448,245 @@ S
 	| external_declaration	
 	;
 
+
 %%
 
-void yyerror(char *s)
-{
- 	printf("\n%s at line no %d\n", s, yylineno);  
-	valid = 0;
+
+// Symbol table functions
+
+// Returns 1 if valid insertion, else 0 if identifier already exists
+int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value){
+	printf("Inserting %s = %s\n", name, value);
+	// Check if identifier already present in the same scope
+	for(int j = 0; j < *count; ++j){
+		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){
+			return 0;
+		}
+	}
+
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	for(int i = 0; i < *count; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope && symbolTable[i].valid){
+		    identifierIndex = i;
+		}
+	}
+
+	int finalValue;
+
+	// If variable, assign its value to current variable, else the number itself (converted from string to number)
+	if(identifierIndex == -1){
+		finalValue = atoi(value);
+	}
+	else{
+		finalValue = symbolTable[identifierIndex].value;
+	}
+
+
+	// If not, insert values in symbol table
+	symbolTable[*count].scope = scope;
+    symbolTable[*count].line_no = line_no;
+    symbolTable[*count].value = finalValue;
+    strcpy(symbolTable[*count].name, name);
+    strcpy(symbolTable[*count].datatype, datatype);
+    symbolTable[*count].valid = scope;
+
+    // Increment count of number of records in symbol table
+    *count = *count + 1;
+
+    return 1;
 }
 
-int main()
-{
+void displaySymbolTable(){
+        printf("\n\nPrinting symbol table: \n");
+        printf("Token\t\tData type\tScope\t\tValue\t\tLine number\tValidity\n");
+        char scopeName[10];
+
+        char validName[10];
+
+
+        for(int i = 0; i < numRecords; ++i)
+        {
+        	if(symbolTable[i].scope == 1){
+        		strcpy(scopeName, "Global");
+        	}
+        	else{
+        		strcpy(scopeName, "Local");
+        	}
+
+        	if(symbolTable[i].valid >= symbolTable[i].scope){
+        		strcpy(validName, "Valid");
+        	}
+        	else{
+        		strcpy(validName, "Invalid");
+        	}
+
+			int value; int intflag = 0;
+			if(!strcmp(symbolTable[i].datatype, "int")){
+				intflag = 1;
+				value = (int)symbolTable[i].value;
+			}
+
+			if(intflag){
+				printf("%s\t\t%s\t\t%d (%s)\t%d\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, value, symbolTable[i].line_no, symbolTable[i].valid, validName);
+			}
+			else{
+        		printf("%s\t\t%s\t\t%d (%s)\t%f\t\t%d\t\t%d (%s)\n", symbolTable[i].name, symbolTable[i].datatype, symbolTable[i].scope, scopeName, symbolTable[i].value, symbolTable[i].line_no, symbolTable[i].valid, validName);
+			}
+        }
+
+        printf("\n\n");
+}
+
+
+// Returns position if finds record, else -1
+int findInSymbolTable(int  scope, char *name){
+	// printf("SCANNING %s %d ", name, scope);
+	for(int i = 0; i < numRecords; ++i){
+		// printf("HMM %d HMM", symbolTable[i].valid);
+		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
+		    // printf("FOUND");
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+// Update value of identifier in symbol table (on assignment)
+void updateSymbolTable(char* name, char* value, int scope){
+
+
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	for(int i = 0; i < numRecords; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, value) && symbolTable[i].scope == scope && symbolTable[i].valid){
+		    identifierIndex = i;
+		}
+	}
+
+	int finalValue;
+
+	// If variable, assign its value to current variable, else the number itself (converted from string to number)
+	if(identifierIndex == -1){
+		finalValue = atoi(value);
+	}
+	else{
+		finalValue = symbolTable[identifierIndex].value;
+	}
+
+	for(int i = 0; i < numRecords; ++i){
+		if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope == scope && symbolTable[i].valid){
+			symbolTable[i].value = finalValue;
+			break;
+		}
+		else if(!strcmp(symbolTable[i].name, name) && symbolTable[i].scope <= scope && symbolTable[i].valid){
+			symbolTable[i].value = finalValue;
+			break;
+		}
+	}
+}
+
+
+
+// scope stores level at which the variable was declared/initialized. 
+// valid stores depth level till which the outer variable can go to. Says if the variable is valid in a location where its scope is not applicable; hence invalid if valid < scope. 
+// scope stored only once. valid changes.
+
+void incrementScope(){
+	for(int i = 0; i < numRecords; ++i){
+	  if(symbolTable[i].valid) symbolTable[i].valid += 1;
+	}
+}
+
+void decrementScope(){
+  for(int i = 0; i < numRecords; ++i){
+    if(symbolTable[i].valid != 0){
+    	symbolTable[i].valid -= 1;
+		if(symbolTable[i].valid < symbolTable[i].scope){
+		  symbolTable[i].valid = 0;
+		}
+    }
+  }
+}
+
+
+// Needed this function only to check if the elements we are performing the operation (relational/logical/arithmetic) are identifiers or numbers. Else could directly write int value = atoi($1) + atoi($3); sprintf($$, "%d", value) in the rule itself.
+
+int doOperation(char* first, char* second, char op, int scope){
+	// Check if the value passed is a variable or a number
+
+	int identifierIndex = -1;
+
+	int firstval = atoi(first);
+	int secondval = atoi(second);
+
+	for(int i = 0; i < numRecords; ++i)
+	{
+		if(!strcmp(symbolTable[i].name, first) && symbolTable[i].scope == scope && symbolTable[i].valid){
+		    firstval = symbolTable[i].value;
+		}
+		if(!strcmp(symbolTable[i].name, second) && symbolTable[i].scope == scope && symbolTable[i].valid){
+			secondval = symbolTable[i].value;
+		}
+	}
+
+	switch(op){
+		case '+': return firstval + secondval;
+		case '-': return firstval - secondval;
+		case '*': return firstval * secondval;
+		case '/': return firstval / secondval;
+		case '<': return firstval < secondval;
+		case '>': return firstval > secondval;
+		case '^': return firstval ^ secondval;
+		case '|': return firstval | secondval;
+		case '&': return firstval & secondval;
+		case 'u': return firstval || secondval;
+		case 'v': return firstval && secondval;
+		case 'w': return firstval == secondval;
+		case 'x': return firstval != secondval;
+		case 'y': return firstval <= secondval;
+		case 'z': return firstval >= secondval;
+	}
+	
+}
+
+
+void yyerror(char *s){
+	extern int yylineno;
+	printf("\n\nERROR:\n Line number: %d \t Error: %s\n", yylineno, s);
+}
+
+int main(){
+	current_scope = 1;
+	numRecords = 0;
 	yyparse();
-	if (valid)
-		printf("\nParsing Successful :)\n\n");
-	else
-		printf("\nParsing Unsuccessful :(\n\n");
 	return 0;
 }
+
+
+/*
+
+Deleted part:
+
+declarator '=' T_CONSTANT {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
+			yyerror("Variable reinitialized");
+		}
+		displaySymbolTable();
+	}
+	| declarator '=' T_IDENTIFIER {
+		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
+			yyerror("Variable on LHS reinitialized or variable on RHS not present");
+		}
+		displaySymbolTable();
+	}
+	|
+
+*/

@@ -12,7 +12,7 @@ int main()
 	}
 	
 
-	while(i>=0)
+	while(i==0)
 	{
 			int k;
 			int j;
@@ -26,8 +26,7 @@ int main()
 			
 			int a = 10;
 			
-			int z = 1;
-			//i = i - z;
+			i = 5;
 	
 	}
 
@@ -46,8 +45,8 @@ int main()
 	a = 10;
 	b = a;
 	c = b;
-	int y = a + b;
-	int z = a + b;
+	int p = a + b;
+	int q = a + b;
 	s = 10*20*30;
 	d = a;
 	e = b;

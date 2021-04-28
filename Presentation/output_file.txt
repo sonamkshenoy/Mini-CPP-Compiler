@@ -7,7 +7,7 @@ d = t0
 i = i
  goto L1
 L3 : 
- L4 :t1 = i >= 0
+ L4 :t1 = i == 0
 ifFalse t1  goto L6
 goto L5 
  L5 :
@@ -15,7 +15,7 @@ j = 20
 t2 = i + j
 k = t2
 a = 10
-z = 1
+i = 5
  goto L4
 L6 : 
  L_case1_1  : ifFalse a = 1 goto L_case2_1 
@@ -32,9 +32,9 @@ a = 10
 b = a
 c = b
 t3 = a + b
-y = t3
+p = t3
 t4 = a + b
-z = t4
+q = t4
 t5 = 10 * 20
 t6 = t5 * 30
 s = t6
