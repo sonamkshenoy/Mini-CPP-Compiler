@@ -3,11 +3,11 @@
 
 // is this a good code or not 
 // it is very very good
-double a = 3.1415e+3;
-int arr[5];
+// double a = 3.1415e+3;
+// int arr[5];
 
 int fun(int w[]){
-	int i=0;
+	int i=0; int k; int j;
 	while(i>=0){
 		if(i==0){
 			int j;

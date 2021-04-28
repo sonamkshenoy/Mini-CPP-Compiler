@@ -1,4 +1,4 @@
-0 = i
+i = 0
  L1 :ifFalse i  goto L3
 goto L2 
  L2 :
@@ -14,8 +14,8 @@ goto L5
 j = 20
 t2 = i + j
 k = t2
-10 = a
-1 = z
+a = 10
+z = 1
  goto L4
 L6 : 
  L_case1_1  : ifFalse a = 1 goto L_case2_1 
@@ -32,9 +32,9 @@ a = 10
 b = a
 c = b
 t3 = a + b
-t3 = y
+y = t3
 t4 = a + b
-t4 = z
+z = t4
 t5 = 10 * 20
 t6 = t5 * 30
 s = t6

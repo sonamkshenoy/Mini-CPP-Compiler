@@ -7,8 +7,28 @@ int main()
 	int i = 0;
 	while(i)
 	{
-		d = d;
+		d = d+1;
 		i = i;
+	}
+	
+
+	while(i>=0)
+	{
+			int k;
+			int j;
+			j = 20;
+			k = i+j;
+					
+		
+	
+			int l; 
+
+			
+			int a = 10;
+			
+			int z = 1;
+			//i = i - z;
+	
 	}
 
 	switch(a)
@@ -26,6 +46,8 @@ int main()
 	a = 10;
 	b = a;
 	c = b;
+	int y = a + b;
+	int z = a + b;
 	s = 10*20*30;
 	d = a;
 	e = b;
