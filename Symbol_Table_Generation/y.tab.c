@@ -1948,7 +1948,7 @@ yyreduce:
 		      yyerror("Variable not declared");
 		}
 		updateSymbolTable(yyvsp[-2], yyvsp[0], current_scope);
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 #line 1954 "y.tab.c"
     break;
@@ -1959,7 +1959,7 @@ yyreduce:
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, yyvsp[-2],  yylineno, yyvsp[0])){
 			yyerror("Variable on LHS reinitialized or variable on RHS not present");
 		}
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 #line 1965 "y.tab.c"
     break;
@@ -1970,7 +1970,7 @@ yyreduce:
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, yyvsp[0], yylineno, "0")){
 			yyerror("Variable redeclared");
 		}
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 #line 1976 "y.tab.c"
     break;
@@ -2011,8 +2011,14 @@ yyreduce:
 #line 2012 "y.tab.c"
     break;
 
+  case 145:
+#line 448 "parser.y"
+                                {displaySymbolTable();}
+#line 2018 "y.tab.c"
+    break;
 
-#line 2016 "y.tab.c"
+
+#line 2022 "y.tab.c"
 
       default: break;
     }
@@ -2252,7 +2258,7 @@ yyreturn:
 
 // Returns 1 if valid insertion, else 0 if identifier already exists
 int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value){
-	printf("Inserting %s = %s\n", name, value);
+	// printf("Inserting %s = %s\n", name, value);
 	// Check if identifier already present in the same scope
 	for(int j = 0; j < *count; ++j){
 		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){

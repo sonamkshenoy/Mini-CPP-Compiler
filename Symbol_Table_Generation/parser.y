@@ -230,7 +230,7 @@ assignment_expression
 		      yyerror("Variable not declared");
 		}
 		updateSymbolTable($1, $3, current_scope);
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 	;
 	| conditional_expression 
@@ -270,13 +270,13 @@ init_declarator
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1,  yylineno, $3)){
 			yyerror("Variable on LHS reinitialized or variable on RHS not present");
 		}
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 	| declarator {
 		if(!insertInSymbolTable(&numRecords, current_scope, currentTypeName, $1, yylineno, "0")){
 			yyerror("Variable redeclared");
 		}
-		displaySymbolTable();
+		// displaySymbolTable();
 	}
 	;
 
@@ -445,7 +445,7 @@ external_declaration
 
 S
 	: S external_declaration
-	| external_declaration	
+	| external_declaration	{displaySymbolTable();}
 	;
 
 
@@ -456,7 +456,7 @@ S
 
 // Returns 1 if valid insertion, else 0 if identifier already exists
 int insertInSymbolTable(int* count, int scope, char *datatype, char* name, int line_no, char* value){
-	printf("Inserting %s = %s\n", name, value);
+	// printf("Inserting %s = %s\n", name, value);
 	// Check if identifier already present in the same scope
 	for(int j = 0; j < *count; ++j){
 		if(!strcmp(symbolTable[j].name, name) && symbolTable[j].scope == scope && symbolTable[j].valid){
